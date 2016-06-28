@@ -1,0 +1,66 @@
+%\documentclass[letterpaper,twocolumn,10pt]{article}
+\documentclass{cls/sig-alternate-10pt}
+
+\setlength{\pdfpagewidth}{8.5in}
+\setlength{\pdfpageheight}{11in}
+
+\usepackage{amsmath,amssymb}
+\usepackage{times}
+\usepackage{xcolor}
+\usepackage{graphics}
+\usepackage{xspace}
+\usepackage{amsmath, amssymb}
+\usepackage[hyphenbreaks]{breakurl}
+\usepackage[hyphens]{url}
+\usepackage{hyperref}
+\usepackage{subfigure}
+\usepackage[font=bf,labelfont=bf]{caption}
+
+\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
+\newcommand{\summation}[2]{\ensuremath{\displaystyle\sum\limits_{#1}^{#2}}}
+\newcommand{\rbr}[1]{\left(#1\right)}
+\newcommand{\cbr}[1]{\left\{#1\right\}}
+
+\renewcommand\textfloatsep{0.05in}
+\renewcommand\abovecaptionskip{0.05in}
+\renewcommand\belowcaptionskip{0.05in}
+\renewcommand\dbltextfloatsep{0.05in}
+
+\def\todo#1{{\textcolor{red}{TODO: {\sf #1}}}}
+\def\ratul#1{{\textcolor{blue}{ratul: {\sf #1}}}}
+\def\harry#1{{\textcolor{purple}{harry: {\sf #1}}}}
+\def\aditya#1{{\textcolor{cyan}{aditya: {\sf #1}}}}
+\def\raajay#1{{\textcolor{green}{raajay: {\sf #1}}}}
+\def\matt#1{{\textcolor{orange}{matt: {\sf #1}}}}
+
+\def\para#1{\vspace{0.05in}\noindent\textbf{#1}\hspace{0.1in}}
+
+\newcommand{\sysname}{{\small {\sf Footprint}}\xspace}
+\newcommand{\sysnamesec}{{\sf Footprint}\xspace}
+\newcommand{\myeqn}[1]{{\small $#1$ \normalsize}}
+
+\newcommand{\anycast}{{\small {\sf WAN-TE}}\xspace}
+\newcommand{\disjoint}{{\small {\sf Disjoint}}\xspace}
+\newcommand{\fpbasic}{{\small {\sf JointBasic}}\xspace}
+\newcommand{\fptemporal}{{\small {\sf JointTemporal}}\xspace}
+\newcommand{\oracle}{{\small {\sf Oracle}}\xspace}
+
+\begin{document}
+
+\title{Abstract RDMA}
+
+\date{}
+
+
+\maketitle
+\thispagestyle{empty}
+
+\input{src/abstract}
+\input{src/introduction}
+\input{src/related}
+
+%\cleardoublepage
+\bibliographystyle{abbrv}
+\bibliography{all_hotnets,all}
+
+\end{document}
