@@ -1,0 +1,23 @@
+\section{Motivation}
+
+Nowadays, TCP/IP is the de facto protocol network communications, and most of applications
+are built with APIs on top of TCP/IP. There are several advantages to use TCP/IP. First of all, 
+portability ... . Second, isolation ... .
+
+However, TCP/IP is sacrificing performance: bypassing OS kernels and memory copies.
+The weakness in performance is getting more and more concerns, since morden applications
+desire high bandwidth (e.g. 40Gbps) and low latency (e.g. < 10$\mu$s).
+\harry{We show experiment results to show this point.}
+
+RDMA is paid more attentions to solve this problem, however, RDMA is not good (or not the best) if the senders and receivers
+are on the same physical machine. \harry{We show measurement results here to demonstrate how "bad"
+RDMA is on the same host.}
+
+The best solution for communication is shared memory if the senders and receivers are on the 
+same physical machine: show measurement results.
+
+Nonetheless, there are two concerns: security and portability.
+For security, it is not a concern for most of the inter-container networking cases, since containers are created by the same user and basically trust each other.
+
+For portability, we want to design a shim layer which offers a uniform programming interface to applications, as well as handle the heterogenousity of locations, under-layer software and hardware stacks.
+
