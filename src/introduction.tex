@@ -22,13 +22,16 @@ The preceding problems in current container networking can potentially be solved
 The first one is that containers those talk to each other are usually created by a single tenant, so that they trust each other.
 It makes it possible that we leverage containers to communicate via shared memory, bypassing the whole network stack, if they are on the same VM or even different VMs but the same physical machine. The second observation is that resource efficiency is an important motivation for people to use containers. Therefore, people usually pack a large number of containers in their systems into a small number of hosts. This will give us more chances to leverage shared memory to delivery the container communications.
 
+% Native approaches do not work
 Nonetheless, directly using the existing shared memory approaches in IPC will break the portability of containers. Unlike traditional process
 communications via shared memory, containers are highly portable, and the location of a container is usually dynamic due to failure recovery and resource packing optimizations performed by cluster orchestrator. It will make the code of applications extremely complicated if we require the containers switch between shared memory interface and TCP/IP interface based on the location of the destination container.
 
+% What we do
 In this paper, we present~\sysname, a new abstraction layer for container networking to achieve both networking efficiency and potability. 
 As shown in Figure~\ref{??}, on one hand, \sysname has a network orchestrator in container runtime systems which decides, creates and manages the channel(s) via which the containers communicate, e.g. shared memory, software network, or remote direct memory access (RDMA), according to factors as the containers' locations, software stack and hardware capability. One the other hand, \sysname provides a simple and uniform application programming interface (API) for applications. This API hides the heterogeneity of the under-layer channels used
 to communicate with other containers, so it achieves the portability of containers.   
 
+% What are the challenges
 We are facing two main challenges in the design of~\sysname. First of all, how do we design the API layer. We have several options: (1) defining a brand new API set, which difficult not only because the complexity of designing a complete and widely accepted API, but also the training overhead to programmers; (2) re-using socket API of TCP/IP, which can hardly support the shared memory semantics; and
 (3) finally we decide to adopt RDMA programming interfaces, Verbs, to achieve~\sysname's API layer. This is because Verbs inherently supports shared memory semantics, can be naturally extended to support multi-host case via RDMA, and has already been an industry standard and widely used by programmers. Additionally, there are also many libraries available to support TCP/IP on top of Verbs, which makes \sysname highly compatible with existing applications.
 
