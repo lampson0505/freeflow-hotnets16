@@ -1,4 +1,12 @@
-\section{Motivation}
+\section{Background and Motivation}
+
+\para{Containers}
+
+Docker containers wrap a piece of software in a complete filesystem that contains everything needed to run: code, runtime, system tools, system libraries – anything that can be installed on a server. This guarantees that the software will always run the same, regardless of its environment.
+
+Containers running on a single machine share the same operating system kernel; they start instantly and use less RAM. Images are constructed from layered filesystems and share common files, making disk usage and image downloads much more efficient.
+
+Linux containers are getting popular. 
 
 Nowadays, TCP/IP is the de facto protocol network communications, and most of applications
 are built with APIs on top of TCP/IP. There are several advantages to use TCP/IP. First of all, 
@@ -8,6 +16,8 @@ However, TCP/IP is sacrificing performance: bypassing OS kernels and memory copi
 The weakness in performance is getting more and more concerns, since morden applications
 desire high bandwidth (e.g. 40Gbps) and low latency (e.g. < 10$\mu$s).
 \harry{We show experiment results to show this point.}
+
+
 
 RDMA is paid more attentions to solve this problem, however, RDMA is not good (or not the best) if the senders and receivers
 are on the same physical machine. \harry{We show measurement results here to demonstrate how "bad"
