@@ -3,32 +3,47 @@
 % What are containers and why they are becoming popular: pointing out portability and resource efficiency.
 
 Containerization is a lightweight and efficient virtualization technology that wraps a piece of software in a complete filesystem cell which is called as a {\em container}. One container 
-contains everything needed to run -- code, runtime, system tools, system libraries -- and guarantees that the software will always run the same on top of a proper OS kernel. Containerization is rapidly
-becoming popular for deploying applications in clouds because of its good agility and portability of code deployment and high efficiency of resource sharing, compared with virtual machines (VMs)~\cite{?}.
+contains everything needed to run -- code, runtime, system tools, system libraries -- and guarantees that the software will always run the same on top of a proper host OS kernel. Containerization is rapidly
+becoming popular for deploying applications in clouds, due to its good agility and portability of code deployment and high efficiency of resource sharing, compared with virtual machines (VMs)~\cite{?}.
 
-% A brief introduction of current container networking.
+% Current, container networking is only using IP networks. It has large overhead in resource efficiency and performance.
+Containers need to communicate with each other via a {\em network channel} -- a software and hardware stack which can pass messages
+from the senders to the receivers. 
+Generally, the major concerns on a network channel can be summarized as four aspects:
+\begin{itemize}
+	\item{\textbf{Performance}}: the throughput and latency to send and receive data and messages.
+	\item{\textbf{Isolation}}: the interferences between senders and receivers in resource, name space and security. 
+	\item{\textbf{Potability}}: the independence between communications and the locations of senders and receivers.
+	\item{\textbf{Overhead}}: the overhead on hardware resources to support the communications.
+\end{itemize}
+Currently, container runtime systems (e.g. Docker~\cite{?} and Kubernetes~\cite{?}) interconnect containers with TCP/IP network. 
+They either leverage
+network address translation (NAT) to map containers' ports to their hosts' ports (a.k.a. {\em host} mode), or use network bridges
+and tunnels to provide a virtualized IP network that connects containers in one or multiple hosts (a.k.a. {\em bridge} and 
+{\em overlay} modes). While TCP/IP network is an intuitive choice which offers isolation and portability for container communications, 
+it heavily evolves the host OS' kernel stack and CPU which makes it suffer from huge performance and resource overhead.
+For instance, the host OS kernel has to consume tremendous CPU cycles on jobs, such as address mapping, header manipulations and payload coping, etc., to process IP packets. It does not only waste the expensive computing resources in clouds, but also 
+limits the network throughput and stretches the network latency between containers (see \S~\ref{sec:motivation}).
 
-Currently, container runtime systems (e.g. Docker~\cite{?}) interconnect containers in three ways. 
-The first is {\em bridge} mode. Containers in the same host that want to talk to each other are attached to a common network bridge created in the host which acts like a Lay-2 hub in the runtime system. The bridge mode can only support intra-host communication among containers. The second is {\em host} mode. Each container maps its ports with its hosts' port and communicate with the hosts' IP and ports. The runtime system will perform the network address translation (NAT) for each packet. The third option is {\em overlay} mode which leverage tunneling (e.g. GRE, VxLAN) to connect containers on the multiple hosts. The packet en(de)capsulation is done by the runtime system. 
+% Other options for networking.
+Apart from TCP/IP networks, there are several other network channels that can potentially be used to enable 
+container communications, while they all have their own pros and cons.
+For instance, containers are essentially processes on the host OS, and they can communicate
+via shared memory. The communications on this channel will bypass the entire host OS stack with negligible CPU overhead and achieve
+excellent network performance in both throughput and latency. However, it requires that containers trust each other, 
+and it has weak
+potability because only containers on the same physical host can potentially use this channel. Another option is remote direct access memory (RDMA) network stack. It does not only have good network performance and low CPU overhead but also good portability. 
+However, it needs special hardware supports, and we also found that it is not efficient for containers in the same host to use RDMA
+(see \S~\ref{sec:motivation}). 
 
-% The problem is current container networking approaches.
-Overall, there is a single methodology behind these networking modes: using software 
-network devices (e.g. hub, NAT middlebox or router) to construct a IP network which interconnects the containers. 
-Despite such methodology is a natural extension from current networking stack OSes, it severely suffers from huge performance and resource overhead. First of all, processing packets with software is costly to CPU on the hosts. Processing packets need to consume tremendous CPU cycles on address mapping, header modifications, data coping and en(de)encapsulations, etc. 
-Moreover, the network throughput can be easily limited by the host CPU's power and available cycles, and the network latency is significantly stretched by going through the whole stack of software network. 
-
-% The intuitive opportunity to improve. 
-The preceding problems in current container networking can potentially be solved with two observations.
-The first one is that containers those talk to each other are usually created by a single tenant, so that they trust each other.
-It makes it possible that we leverage containers to communicate via shared memory, bypassing the whole network stack, if they are on the same VM or even different VMs but the same physical machine. The second observation is that resource efficiency is an important motivation for people to use containers. Therefore, people usually pack a large number of containers in their systems into a small number of hosts. This will give us more chances to leverage shared memory to delivery the container communications.
-
-% Native approaches do not work
-Nonetheless, directly using the existing shared memory approaches in IPC will break the portability of containers. Unlike traditional process
-communications via shared memory, containers are highly portable, and the location of a container is usually dynamic due to failure recovery and resource packing optimizations performed by cluster orchestrator. It will make the code of applications extremely complicated if we require the containers switch between shared memory interface and TCP/IP interface based on the location of the destination container.
+Since different network channels achieves different trade-offs, how to choose the right network channel for containers depends 
+on multiple factors, such as the applications' expectations, 
+the hardware capability on the host, and the locations of containers, etc.. For example, if one application has a group of containers trusting each other, which means a sacrifice on isolation is tolerated, and it cares most about network performance, it had better use
+shared memory to connect the containers on the same host, and RDMA on different hosts if the hardware is capable. However, the decision making and context switching processes should be transparent to the user code, because otherwise it will make the development of applications significantly more complicated.
 
 % What we do
-In this paper, we present~\sysname, a new abstraction layer for container networking to achieve both networking efficiency and potability. 
-As shown in Figure~\ref{??}, on one hand, \sysname has a network orchestrator in container runtime systems which decides, creates and manages the channel(s) via which the containers communicate, e.g. shared memory, software network, or remote direct memory access (RDMA), according to factors as the containers' locations, software stack and hardware capability. One the other hand, \sysname provides a simple and uniform application programming interface (API) for applications. This API hides the heterogeneity of the under-layer channels used
+In this paper, we present~\sysname, a new abstraction layer for container networking to achieve the optimal network properties for different applications. 
+As shown in Figure~\ref{??}, on one hand, \sysname has a network orchestrator in container runtime systems which decides, creates and manages the network channels according to factors as the containers' locations, software stack and hardware capability. One the other hand, \sysname provides a simple and uniform application programming interface (API) for applications. This API hides the heterogeneity of the under-layer channels used
 to communicate with other containers, so it achieves the portability of containers.   
 
 % What are the challenges
