@@ -1,34 +1,41 @@
 \section{Background and Motivation}
 \label{sec:motivation}
 
-\para{Containers}
+In this section, we present measurement results that demonstrates the network performance and resource overhead of different optional network channels. We focus on network throughput and latency when containers are located in the same or different hosts. 
+We choose two kinds of hosts: physical machines and VMs in public clouds.
 
-Docker containers wrap a piece of software in a complete filesystem that contains everything needed to run: code, runtime, system tools, system libraries – anything that can be installed on a server. This guarantees that the software will always run the same, regardless of its environment.
+\harry{The point of this section: showing that different network channels have performance advantage in different scenarios.}
 
-Containers running on a single machine share the same operating system kernel; they start instantly and use less RAM. Images are constructed from layered filesystems and share common files, making disk usage and image downloads much more efficient.
+\subsection{The measurement setup}
+(1) two bare metals: 40Gbps NICs.
+(2) two VMs on top of the two bare metals.
+(3) two VMs from Azure or EC2.
 
-Linux containers are getting popular. 
+\subsection{Intra-host Network Performance}
 
-Nowadays, TCP/IP is the de facto protocol network communications, and most of applications
-are built with APIs on top of TCP/IP. There are several advantages to use TCP/IP. First of all, 
-portability ... . Second, isolation ... .
+\para{Throughput}
 
-However, TCP/IP is sacrificing performance: bypassing OS kernels and memory copies.
-The weakness in performance is getting more and more concerns, since morden applications
-desire high bandwidth (e.g. 40Gbps) and low latency (e.g. < 10$\mu$s).
-\harry{We show experiment results to show this point.}
+Three points: (1) TCP throughput is limited; (2) the bottleneck is CPU rather than memory bus for TCP/IP; (3) the bottleneck is NIC CPU for RDMA. (4) For intra-host cases, shared memory has the best performance.
+
+Figure 1: throughput of single src-dst pair. Bar figure: x-axis: TCP/IP, RDMA and shared memory; y-axis: throughput;
+
+Figure 2(a): throughput of multiple src-dst pair. Line figure: x-axis: number of pairs,; y-axis: throughput; Four lines: TCP/IP, RDMA, shared memory and memory bus.
+
+Figure 2(b): CPU utilization. Line figure: x-axis: number of pairs,; y-axis: CPU utilization; Three lines: TCP/IP, RDMA, shared memory.
+
+Figure 2(c): NIC CPU utilization. Line figure: x-axis: number of pairs,; y-axis: NIC CPU utilization; Three lines: TCP/IP, RDMA, shared memory.
 
 
+\para{Latency}
+Two points: (1) going through OS stack is increasing network latency; (2) The bottleneck is on system calls.
 
-RDMA is paid more attentions to solve this problem, however, RDMA is not good (or not the best) if the senders and receivers
-are on the same physical machine. \harry{We show measurement results here to demonstrate how "bad"
-RDMA is on the same host.}
+Figure 3: The stacked bar chart showing the total latency of TCP/IP, RDMA, shared memory and their components.
 
-The best solution for communication is shared memory if the senders and receivers are on the 
-same physical machine: show measurement results.
 
-Nonetheless, there are two concerns: security and portability.
-For security, it is not a concern for most of the inter-container networking cases, since containers are created by the same user and basically trust each other.
+\subsection{Inter-host network performance}
 
-For portability, we want to design a shim layer which offers a uniform programming interface to applications, as well as handle the heterogenousity of locations, under-layer software and hardware stacks.
+points: (1) inter-host is generally worse than intra-host, so people have intensive to pack; (2) RDMA has the best performance in inter-host case;
 
+Figure 4: the throughput of single src-dst pair in bare metal. Bar figure: x-axis: TCP/IP, RDMA and shared memory; y-axis: throughput;
+
+Figure 5: the throughput of single src-dst pair in clouds. Bar figure: x-axis: TCP/IP, RDMA and shared memory; y-axis: throughput;
