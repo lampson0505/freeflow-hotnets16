@@ -30,8 +30,8 @@ Apart from TCP/IP networks, there are several other network channels that can po
 container communications, while they all have their own pros and cons.
 For instance, containers are essentially processes on the host OS, and they can communicate
 via shared memory. The communications on this channel will bypass the entire host OS stack with negligible CPU overhead and achieve
-excellent network performance in both throughput and latency. However, it requires that containers trust each other, 
-and it has weak
+excellent network performance in both throughput and latency. However, it requires containers to trust each other (weak isolation), 
+and it has also weak
 potability because only containers on the same physical host can potentially use this channel. Another option is remote direct access memory (RDMA) network stack. It does not only have good network performance and low CPU overhead but also good portability. 
 However, it needs special hardware supports, and we also found that it is not efficient for containers in the same host to use RDMA
 (see \S~\ref{sec:motivation}). 
@@ -39,7 +39,7 @@ However, it needs special hardware supports, and we also found that it is not ef
 Since different network channels achieves different trade-offs, how to choose the right network channel for containers depends 
 on multiple factors, such as the applications' expectations, 
 the hardware capability on the host, and the locations of containers, etc.. For example, if one application has a group of containers trusting each other, which means a sacrifice on isolation is tolerated, and it cares most about network performance, it had better use
-shared memory to connect the containers on the same host, and RDMA on different hosts if the hardware is capable. However, the decision making and context switching processes should be transparent to the user code, because otherwise it will make the development of applications significantly more complicated.
+shared memory to connect the containers on the same host, and RDMA on different hosts when the hardware is capable. However, the channel selection and switching processes should be transparent to the user code, because otherwise it will make the development of applications significantly more complicated.
 
 % What we do
 In this paper, we present~\sysname, a new abstraction layer for container networking to achieve the optimal network properties for different applications. 
@@ -47,7 +47,9 @@ As shown in Figure~\ref{??}, on one hand, \sysname has a network orchestrator in
 to communicate with other containers, so it achieves the portability of containers.   
 
 % What are the challenges
-We are facing two main challenges in the design of~\sysname. First of all, how do we design the API layer. We have several options: (1) defining a brand new API set, which difficult not only because the complexity of designing a complete and widely accepted API, but also the training overhead to programmers; (2) re-using socket API of TCP/IP, which can hardly support the shared memory semantics; and
+We are facing three main challenges in the design of~\sysname. First of all, how do we design the API layer. We have several options: (1) defining a brand new API set, which difficult not only because the complexity of designing a complete and widely accepted API, but also the training overhead to programmers; (2) re-using socket API of TCP/IP, which can hardly support the shared memory semantics; and
 (3) finally we decide to adopt RDMA programming interfaces, Verbs, to achieve~\sysname's API layer. This is because Verbs inherently supports shared memory semantics, can be naturally extended to support multi-host case via RDMA, and has already been an industry standard and widely used by programmers. Additionally, there are also many libraries available to support TCP/IP on top of Verbs, which makes \sysname highly compatible with existing applications.
 
-Second, \harry{we should talk about the system challenges, but I do not know what exactly they are currently}.
+Next, \harry{how to select network channels.}
+
+Finally, \harry{we should talk about the system challenges, but I do not know what exactly they are currently}.
