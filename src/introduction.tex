@@ -2,7 +2,8 @@
 
 % What are containers and why they are becoming popular: pointing out portability and resource efficiency.
 
-Containerization is a lightweight and efficient virtualization technology that wraps a piece of software in a complete filesystem cell which is called as a 
+Containerization is a lightweight and efficient virtualization technology that 
+wraps a piece of software in a complete filesystem cell which is called as a 
 {\em container}. 
 One container contains everything needed to run -- code, runtime, system tools, s
 system libraries -- and guarantees that the software will always run the same on 
@@ -18,24 +19,23 @@ a collection of processes (containers) that are connected by networks.
 % Currently, container networking is only using IP networks. It has large overhead in resource efficiency and performance.
 
 TCP/IP is the de facto container networking solution. To support TCP/IP, 
-container runtime systems (e.g. Docker~\cite{?} and
-Kubernetes~\cite{?}) connect containers with virtual networks and route IP 
+container runtime systems, such as Docker~\cite{?} and
+Kubernetes~\cite{?}, connect containers with virtual networks and route IP 
 packets among containers with software. This solution offers portable 
 connectivity and strong isolation to containers, but TCP/IP's poor performance
 and large overhead make it not suitable for all applications in data centers.
-\harry{examples of such applications.}
 First of all, it is difficult and expensive to achieve high throughput with TCP/
 IP. TCP/IP inherently split data into packets and each packet can generate 
 numerous system calls, interrupts, task switches and data coping, etc., which 
 cost tremendous CPU cycles. \S\ref{sec:motivation} shows that CPU will quickly 
 becomes the bottleneck which limits the throughput of TCP/IP. Additionally, 
 traversing the whole TCP/IP and software network stack significantly stretches 
-the network latency which quickly becoming the limiting factor in many fronts~\cite{?}.
+the network latency which quickly becoming the limiting factor in applications
+like in-memory cache, key-value stores and machine learning~\cite{?}.
 
 % Other options for networking.
-
 Apart from TCP/IP, there are still several options for container networking,
-while they all have their own pros and cons.
+while they all have their own pros and cons and have not been used by containers.
 For instance, containers are essentially processes on the host OS, and they can 
 communicate via IPC channels, like shared-memory which can bypass the whole OS 
 stack. This solution can achieve
@@ -61,7 +61,8 @@ are common API for shared-memory and RDMA respectively.
 It will be favorable if the network solution selection can be transparent to the application code.
 
 % What we do
-In this paper, we present~\sysname, a new abstraction layer for container networking to achieve close-to-optimal network properties. 
+In this paper we ask a simple question: {\em how can containers always have the best network properties for them with a uniform API?}
+We present~\sysname, a new abstraction layer for container networking to achieve close-to-optimal network properties. 
 On one hand, \sysname has a network orchestrator in container runtime systems which decides which network solution to use on-the-fly according to factors as the containers' locations, software stack and hardware capability. One the other hand, \sysname provides a simple and uniform application programming interface (API) for container communications.   
 
 % What are the challenges
@@ -70,10 +71,8 @@ how to design the uniform network API. One option is to define a rand new API
 set, but it is difficult not only because the complexity of designing a complete
 and widely accepted API but also the training overhead to programmers.
 Therefore, we decide to use an existing and mature API. Among the numerous candidates, e.g. socket, RDMA verbs, MPI, etc., we choose RDMA Verbs for two
-reasons. The first is that Verbs has both memory manipulation and message passing
-semantics, so that it can serve as a base layer and support messaging (e.g. UDP,
+reasons. First, RDMA Verbs has been widely accepted as an industrial standards and many applications desiring high network performance have already been using it~\cite{?}; Second, as a general message passing interface, RDMA verbs can easily serve as a base layer support messaging (e.g. UDP,
 MPI), streaming (e.g. TCP) and memory sharing (e.g. shared-memory, RDMA) on top.
-The second reason is that Verbs has been widely accepted by industry.
 
 Next, \harry{how to compatible with legacy verbs code.}
 
