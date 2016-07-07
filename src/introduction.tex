@@ -51,16 +51,29 @@ one-size-fit-all container networking solution. To make the communications among
 containers more efficient, a proper network solution should be adopted according
 to application requirements, container locations and hardware capabilities.
 For example, if one micro-service application has a group of containers trusting each other, and it cares most about network performance, it had better use
-shared memory to connect the containers on the same host, and RDMA on different hosts when the hardware is capable. However, the network solution selection and switching processes should be transparent to the user code, because otherwise it will make the development of applications significantly more complicated.
+shared memory to connect the containers on the same host, and RDMA on different hosts when the hardware is capable. 
+
+On the flip side, switching among multiple network solutions can potentially 
+make the application code extremely complicated. This is because
+containers must use different programming interfaces for different
+network solutions. For instance, TCP/IP requires socket API, and POSIX and Verbs
+are common API for shared-memory and RDMA respectively. 
+It will be favorable if the network solution selection can be transparent to the application code.
 
 % What we do
-In this paper, we present~\sysname, a new abstraction layer for container networking to achieve the optimal network properties for different applications. 
-As shown in Figure~\ref{??}, on one hand, \sysname has a network orchestrator in container runtime systems which decides, creates and manages the network channels according to factors as the containers' locations, software stack and hardware capability. One the other hand, \sysname provides a simple and uniform application programming interface (API) for applications. This API hides the heterogeneity of the under-layer channels used
-to communicate with other containers, so it achieves the portability of containers.   
+In this paper, we present~\sysname, a new abstraction layer for container networking to achieve close-to-optimal network properties. 
+On one hand, \sysname has a network orchestrator in container runtime systems which decides which network solution to use on-the-fly according to factors as the containers' locations, software stack and hardware capability. One the other hand, \sysname provides a simple and uniform application programming interface (API) for container communications.   
 
 % What are the challenges
-We are facing three main challenges in the design of~\sysname. First of all, how do we design the API layer. We have several options: (1) defining a brand new API set, which difficult not only because the complexity of designing a complete and widely accepted API, but also the training overhead to programmers; (2) re-using socket API of TCP/IP, which can hardly support the shared memory semantics; and
-(3) finally we decide to adopt RDMA programming interfaces, Verbs, to achieve~\sysname's API layer. This is because Verbs inherently supports shared memory semantics, can be naturally extended to support multi-host case via RDMA, and has already been an industry standard and widely used by programmers. Additionally, there are also many libraries available to support TCP/IP on top of Verbs, which makes \sysname highly compatible with existing applications.
+We are facing three main challenges in the design of~\sysname. First of all, 
+how to design the uniform network API. One option is to define a rand new API 
+set, but it is difficult not only because the complexity of designing a complete
+and widely accepted API but also the training overhead to programmers.
+Therefore, we decide to use an existing and mature API. Among the numerous candidates, e.g. socket, RDMA verbs, MPI, etc., we choose RDMA Verbs for two
+reasons. The first is that Verbs has both memory manipulation and message passing
+semantics, so that it can serve as a base layer and support messaging (e.g. UDP,
+MPI), streaming (e.g. TCP) and memory sharing (e.g. shared-memory, RDMA) on top.
+The second reason is that Verbs has been widely accepted by industry.
 
 Next, \harry{how to compatible with legacy verbs code.}
 
