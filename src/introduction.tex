@@ -2,44 +2,56 @@
 
 % What are containers and why they are becoming popular: pointing out portability and resource efficiency.
 
-Containerization is a lightweight and efficient virtualization technology that wraps a piece of software in a complete filesystem cell which is called as a {\em container}. One container 
-contains everything needed to run -- code, runtime, system tools, system libraries -- and guarantees that the software will always run the same on top of a proper host OS kernel. Containerization is rapidly
-becoming popular for deploying applications in clouds, due to its good agility and portability of code deployment and high efficiency of resource sharing, compared with virtual machines (VMs)~\cite{?}.
+Containerization is a lightweight and efficient virtualization technology that wraps a piece of software in a complete filesystem cell which is called as a 
+{\em container}. 
+One container contains everything needed to run -- code, runtime, system tools, s
+system libraries -- and guarantees that the software will always run the same on 
+top of a proper host OS kernel. Containerization is rapidly
+becoming popular for deploying applications in data centers, 
+due to its good agility 
+and portability of code deployment and high efficiency of resource sharing, 
+compared with virtual machines (VMs)~\cite{?}. 
+Furthermore, it inherently supports
+the "micro-service" software architecture, in which a system is constructed by 
+a collection of processes (containers) that are connected by networks.
 
-% Current, container networking is only using IP networks. It has large overhead in resource efficiency and performance.
-Containers need to communicate with each other via a {\em network channel} -- a software and hardware stack which can pass messages
-from the senders to the receivers. 
-Generally, the major concerns on a network channel can be summarized as four aspects:
-\begin{itemize}
-	\item{\textbf{Performance}}: the throughput and latency to send and receive data and messages.
-	\item{\textbf{Isolation}}: the interferences between senders and receivers in resource, name space and security. 
-	\item{\textbf{Potability}}: the independence between communications and the locations of senders and receivers.
-	\item{\textbf{Overhead}}: the overhead on hardware resources to support the communications.
-\end{itemize}
-Currently, container runtime systems (e.g. Docker~\cite{?} and Kubernetes~\cite{?}) interconnect containers with TCP/IP network. 
-They either leverage
-network address translation (NAT) to map containers' ports to their hosts' ports (a.k.a. {\em host} mode), or use network bridges
-and tunnels to provide a virtualized IP network that connects containers in one or multiple hosts (a.k.a. {\em bridge} and 
-{\em overlay} modes). While TCP/IP network is an intuitive choice which offers isolation and portability for container communications, 
-it heavily evolves the host OS' kernel stack and CPU which makes it suffer from huge performance and resource overhead.
-For instance, the host OS kernel has to consume tremendous CPU cycles on jobs, such as address mapping, header manipulations and payload coping, etc., to process IP packets. It does not only waste the expensive computing resources in clouds, but also 
-limits the network throughput and stretches the network latency between containers (see \S~\ref{sec:motivation}).
+% Currently, container networking is only using IP networks. It has large overhead in resource efficiency and performance.
+
+TCP/IP is the de facto container networking solution. To support TCP/IP, 
+container runtime systems (e.g. Docker~\cite{?} and
+Kubernetes~\cite{?}) connect containers with virtual networks and route IP 
+packets among containers with software. This solution offers portable 
+connectivity and strong isolation to containers, but TCP/IP's poor performance
+and large overhead make it not suitable for all applications in data centers.
+\harry{examples of such applications.}
+First of all, it is difficult and expensive to achieve high throughput with TCP/
+IP. TCP/IP inherently split data into packets and each packet can generate 
+numerous system calls, interrupts, task switches and data coping, etc., which 
+cost tremendous CPU cycles. \S\ref{sec:motivation} shows that CPU will quickly 
+becomes the bottleneck which limits the throughput of TCP/IP. Additionally, 
+traversing the whole TCP/IP and software network stack significantly stretches 
+the network latency which quickly becoming the limiting factor in many fronts~\cite{?}.
 
 % Other options for networking.
-Apart from TCP/IP networks, there are several other network channels that can potentially be used to enable 
-container communications, while they all have their own pros and cons.
-For instance, containers are essentially processes on the host OS, and they can communicate
-via shared memory. The communications on this channel will bypass the entire host OS stack with negligible CPU overhead and achieve
-excellent network performance in both throughput and latency. However, it requires containers to trust each other (weak isolation), 
-and it has also weak
-potability because only containers on the same physical host can potentially use this channel. Another option is remote direct access memory (RDMA) network stack. It does not only have good network performance and low CPU overhead but also good portability. 
+
+Apart from TCP/IP, there are still several options for container networking,
+while they all have their own pros and cons.
+For instance, containers are essentially processes on the host OS, and they can 
+communicate via IPC channels, like shared-memory which can bypass the whole OS 
+stack. This solution can achieve
+excellent network performance in both throughput and latency as shown in \S\ref{s
+ec:motivatoin}, but requires the containers are co-located in the same host and 
+trust each other. Another promising option is remote direct access memory (RDMA) network stack. It does not only have good network performance and low CPU overhead but also good portability regardless the locations of containers. 
 However, it needs special hardware supports, and we also found that it is not efficient for containers in the same host to use RDMA
 (see \S~\ref{sec:motivation}). 
 
-Since different network channels achieves different trade-offs, how to choose the right network channel for containers depends 
-on multiple factors, such as the applications' expectations, 
-the hardware capability on the host, and the locations of containers, etc.. For example, if one application has a group of containers trusting each other, which means a sacrifice on isolation is tolerated, and it cares most about network performance, it had better use
-shared memory to connect the containers on the same host, and RDMA on different hosts when the hardware is capable. However, the channel selection and switching processes should be transparent to the user code, because otherwise it will make the development of applications significantly more complicated.
+Since different applications have specific concerns on the performance, 
+isolation, portability and overhead, there is no
+one-size-fit-all container networking solution. To make the communications among
+containers more efficient, a proper network solution should be adopted according
+to application requirements, container locations and hardware capabilities.
+For example, if one micro-service application has a group of containers trusting each other, and it cares most about network performance, it had better use
+shared memory to connect the containers on the same host, and RDMA on different hosts when the hardware is capable. However, the network solution selection and switching processes should be transparent to the user code, because otherwise it will make the development of applications significantly more complicated.
 
 % What we do
 In this paper, we present~\sysname, a new abstraction layer for container networking to achieve the optimal network properties for different applications. 
@@ -50,6 +62,6 @@ to communicate with other containers, so it achieves the portability of containe
 We are facing three main challenges in the design of~\sysname. First of all, how do we design the API layer. We have several options: (1) defining a brand new API set, which difficult not only because the complexity of designing a complete and widely accepted API, but also the training overhead to programmers; (2) re-using socket API of TCP/IP, which can hardly support the shared memory semantics; and
 (3) finally we decide to adopt RDMA programming interfaces, Verbs, to achieve~\sysname's API layer. This is because Verbs inherently supports shared memory semantics, can be naturally extended to support multi-host case via RDMA, and has already been an industry standard and widely used by programmers. Additionally, there are also many libraries available to support TCP/IP on top of Verbs, which makes \sysname highly compatible with existing applications.
 
-Next, \harry{how to select network channels.}
+Next, \harry{how to compatible with legacy verbs code.}
 
 Finally, \harry{we should talk about the system challenges, but I do not know what exactly they are currently}.
