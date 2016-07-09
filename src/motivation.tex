@@ -6,17 +6,40 @@ We choose two kinds of hosts: physical machines and VMs in public clouds.
 
 \subsection{Running environments of containers}
 
+\begin{table} [t!]
+\centering
+\small
+\begin{tabular}{ c || c | c | c | c }
+  \hline
+  Constraint & Case (a) & Case (b) & Case (c) & Case (d) \\ \hline \hline
+  N/A & SharedMem & RDMA & SharedMem & RDMA \\ \hline
+  w/o trust & TCP/IP & TCP/IP & TCP/IP & TCP/IP \\ \hline
+  w/o RDMA NIC & SharedMem & TCP/IP & SharedMem & TCP/IP \\ \hline
+\end{tabular}
+\caption{\label{tab:best-network} The suggested network solution under different running environments in Figure~\ref{fig:deploy-cases} and constraints.}
+\normalsize
+\end{table}
 
-\subsection{TCP/IP's ineffiency}
+Nowadays, a containerlized application is usually composed by multiple containers. For example, each master and slave node in Hadoop is an invividual container; A web service can include layers, such as load balancer, web server,
+in-memory cache and backend database, and eacy layer can be a distributed 
+system with multiple containerlized nodes. These containers are usually 
+deployed into a multi-host server cluster, and the deployment is usually 
+controlled by a cluster orchestrator, e.g. Mesos~\cite{?}. Working as a single 
+application, the containers need to exchange data, and the network performance
+has a huge impact on the overall application performance. 
 
-\subsection{RDMA's ineffiency}
+Introduce the four representative cases of Figure~\ref{fig:deploy-cases}...
 
-\subsection{Shared-memory's limitation}
+\subsection{The ineffiencies in container networking}
 
 
-\harry{The point of this section: showing that different network channels have performance advantage in different scenarios.}
+We measure the throughput and latency of TCP/IP, Shared-Mem and RDMA under cases
+(a) (b) (c) and (d).
 
-\subsection{The measurement setup}
+\harry{RDMA and Shared-Mem is missing under (c) and (d)}.
+
+
+\para{The measurement setup}
 (1) two bare metals: 40Gbps NICs.
 (2) two VMs on top of the two bare metals.
 (3) two VMs from Azure or EC2.
@@ -40,12 +63,3 @@ Figure 2(c): NIC CPU utilization. Line figure: x-axis: number of pairs,; y-axis:
 Two points: (1) going through OS stack is increasing network latency; (2) The bottleneck is on system calls.
 
 Figure 3: The stacked bar chart showing the total latency of TCP/IP, RDMA, shared memory and their components.
-
-
-\subsection{Inter-host network performance}
-
-points: (1) inter-host is generally worse than intra-host, so people have intensive to pack; (2) RDMA has the best performance in inter-host case;
-
-Figure 4: the throughput of single src-dst pair in bare metal. Bar figure: x-axis: TCP/IP, RDMA and shared memory; y-axis: throughput;
-
-Figure 5: the throughput of single src-dst pair in clouds. Bar figure: x-axis: TCP/IP, RDMA and shared memory; y-axis: throughput;
