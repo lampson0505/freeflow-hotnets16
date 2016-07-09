@@ -61,6 +61,12 @@ network solutions. For instance, TCP/IP requires socket API, and POSIX and Verbs
 are common API for shared-memory and RDMA respectively. 
 It will be favorable if the network solution selection can be transparent to the application code.
 
+\begin{figure*}[!ht]
+     \centering 
+     \includegraphics[width=6.7in]{figures/deployment-cases} 
+    \caption{\label{fig:deploy-cases} Representitive running environments of containers.} 
+\end{figure*} 
+
 % What we do
 In this paper we ask a simple question: {\em how can containers always have the best network properties for them with a uniform API?}
 To answer this questions, we present~\sysname, a new abstraction layer for container networking to achieve close-to-optimal network properties. 
