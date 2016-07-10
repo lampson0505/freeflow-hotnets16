@@ -58,8 +58,27 @@ Figure 2(b): CPU utilization. Line figure: x-axis: number of pairs,; y-axis: CPU
 
 Figure 2(c): NIC CPU utilization. Line figure: x-axis: number of pairs,; y-axis: NIC CPU utilization; Three lines: TCP/IP, RDMA, shared memory.
 
+\begin{figure}[!ht]
+     \centering 
+     \includegraphics[width=3.35in]{figures/motivation/eval_baremetal_thr.pdf} 
+     \caption{\label{fig:eval_baremetal_thr} The throughput of a pair of containers on the same bare metal communicating via IP stack, RDMA and shared memory. Communication via shared memory is close to the memory bandwidth.} 
+\end{figure} 
 
 \para{Latency}
 Two points: (1) going through OS stack is increasing network latency; (2) The bottleneck is on system calls.
 
 Figure 3: The stacked bar chart showing the total latency of TCP/IP, RDMA, shared memory and their components.
+
+\begin{figure}[!ht]
+     \centering 
+     \includegraphics[width=3.35in]{figures/motivation/eval_baremetal_latency.pdf} 
+     \caption{\label{fig:eval_baremetal_latency} The latency of a pair of containers on the same bare metal communicating via IP stack, RDMA and shared memory. Shared memory achieves the lowest latency.} 
+\end{figure} 
+
+\para{CPU Usage}
+
+\begin{figure}[!ht]
+     \centering 
+     \includegraphics[width=3.35in]{figures/motivation/eval_baremetal_cpu.pdf} 
+     \caption{\label{fig:eval_baremetal_cpu} The cpu usage of a pair of containers on the same bare metal communicating via IP stack, RDMA and shared memory. Communication via IP stack almost saturates 2 cpu cores.} 
+\end{figure} 
