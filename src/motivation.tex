@@ -32,18 +32,53 @@ Introduce the four representative cases of Figure~\ref{fig:deploy-cases}...
 
 \subsection{The ineffiencies in container networking}
 
-
 We measure the throughput and latency of TCP/IP, Shared-Mem and RDMA under cases
 (a) (b) (c) and (d).
 
 \harry{RDMA and Shared-Mem is missing under (c) and (d)}.
-
 
 \para{The measurement setup}
 (1) two bare metals: 40Gbps NICs.
 (2) two VMs on top of the two bare metals.
 (3) two VMs from Azure or EC2.
 
+\subsection{Intra-host communication: throughput vs. latency vs. cpu usage}
+
+\begin{figure*}[t]
+     \centering 
+     %\begin{subfigure}[t]{0.25\textwidth}
+     \begin{subfigure}[t]
+     \centering 
+     \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_thr.pdf}      
+     %\label{fig:eval_baremetal_thr}
+     %\caption{} 
+     \end{subfigure}      
+     \begin{subfigure}[t]
+     \centering 
+     \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_latency.pdf}      
+     %\label{fig:eval_baremetal_latency}
+     %\caption{} 
+     \end{subfigure}      
+     \begin{subfigure}[t]
+     \centering 
+     \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_cpu.pdf}      
+     %\label{fig:eval_baremetal_cpu}
+     %\caption{} 
+     \end{subfigure}           
+     \label{fig:eval_baremetal_thr_latency_cpu}
+     \caption{} 
+\end{figure*} 
+
+\begin{itemize}
+  \item Communication via IP stack only achieves 27Gb/s throughput, 1 ms latency but uses near to 200\% of cpu.
+  \item RDMA only improves the throughput to 40Gb/s for containers on the same machine, the latency is still 1ms, though it has a low cpu usage.
+  \item Shared memory can achieve near-to-memory-bandwidth throughput, lowest latency, but still burns some cpu. 
+\end{itemize}
+
+
+
+% comment 
+\iffalse
 \subsection{Intra-host Network Performance}
 
 \para{Throughput}
@@ -82,3 +117,6 @@ Figure 3: The stacked bar chart showing the total latency of TCP/IP, RDMA, share
      \includegraphics[width=3.35in]{figures/motivation/eval_baremetal_cpu.pdf} 
      \caption{\label{fig:eval_baremetal_cpu} The cpu usage of a pair of containers on the same bare metal communicating via IP stack, RDMA and shared memory. Communication via IP stack almost saturates 2 cpu cores.} 
 \end{figure} 
+
+% comment 
+\fi
