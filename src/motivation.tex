@@ -42,7 +42,10 @@ We measure the throughput and latency of TCP/IP, Shared-Mem and RDMA under cases
 (2) two VMs on top of the two bare metals.
 (3) two VMs from Azure or EC2.
 
-\subsection{Intra-host communication: throughput vs. latency vs. cpu usage}
+\subsection{Intra-host performance}
+
+
+\subsubsection{throughput vs. latency vs. cpu usage}
 
 \begin{figure*}[t]
      \centering 
@@ -76,6 +79,18 @@ We measure the throughput and latency of TCP/IP, Shared-Mem and RDMA under cases
 \end{itemize}
 
 
+\subsubsection{Host-mode vs. bridge mode}
+
+\begin{figure}[!ht]
+     \centering 
+     \includegraphics[width=3.35in]{figures/motivation/eval_bw_host_bridge.pdf} 
+     \label{fig:eval_bw_host_bridge}
+     \caption{ Host-mode vs. bridge mode vs. RDMA vs. shared memory.} 
+\end{figure} 
+
+\begin{itemize}
+  \item Host-mode provides a better performance of 38 Gb/s. 
+\end{itemize}
 
 % comment 
 \iffalse
