@@ -16,8 +16,7 @@ Ideally, containers should also have good performance and resource efficiency,
 since they can directly run on bare-metal hosts without the overhead to run
 hypervisor and guest OS in traditional visualization. However, perhaps 
 surprisingly, we find measured evidence of significant bottlenecks in the 
-network-level performance of containerized applications. Containers have
-three networking modes:
+network-level performance of containerized applications. We set up two iPerf containers running in server and client roles respectively and benchmark the network bandwidth between them when they use three different networking modes:
 \begin{itemize}
 	\item {\em Host}, in which one container binds an interface
 and a port on the host and use the host's IP to communicate, like an ordinary
@@ -60,7 +59,7 @@ to another host, and poor independence because it needs to coordinate with
 other containers on the same host to avoid port conflicts.
 
 An ideal solution for container networking is an overlay network with flexible
-IP assignment and routing in control-plane and data transmission with high 
+IP assignment and routing in control-plane and high 
 throughput, low latency and negligible overhead in data-plane. In this paper, we 
 will discuss the opportunities and challenges to build such a solution. 
 Specifically, with measurements, we first identify that the communications 
