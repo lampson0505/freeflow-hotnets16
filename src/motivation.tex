@@ -36,11 +36,18 @@ P1: [Details and related work for existing container network solutions]There are
      \caption{The cpu usage of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
 \end{figure} 
 
+\begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_bw_cpu.pdf}      
+     \label{fig:eval_bw_cpu}
+     \caption{} 
+\end{figure}
+
 Conclusions:
 \begin{itemize}
   \item The intra-host throughput of existing solutions are less than 40Gb/s.
   \item The throughput, latency of two containers with host mode is close to the throughput of processes.
-  \item All the existing solutions put a heavy load on CPU.
+  \item All the existing solutions put a heavy load on CPU. CPU is the main bottleneck for throughput.
 \end{itemize}
 
 \subsection{Opportunities to build a better container networks}
@@ -75,13 +82,6 @@ CPU usage:
      \centering 
      \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_cpu.pdf}      
      \label{fig:eval_baremetal_cpu}
-     \caption{} 
-     \end{figure}
-     
-     \begin{figure}[ht]
-     \centering 
-     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_bw_cpu.pdf}      
-     \label{fig:eval_bw_cpu}
      \caption{} 
      \end{figure}
      
