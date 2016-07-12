@@ -22,18 +22,26 @@ P1: [Details and related work for existing container network solutions]There are
      \caption{The intra-host throughput of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
 \end{figure} 
 
-Conclusions:
-\begin{itemize}
-  \item The intra-host throughput of existing solutions are less than 40Gb/s.
-  \item The throughput of two containers with host mode is close to the throughput of processes.
-\end{itemize}
-
 \begin{figure}[ht]
      \centering 
      \includegraphics[width=0.4\textwidth]{figures/motivation/eval_exist_latency.pdf} 
      \label{fig:eval_exist_latency}
      \caption{The intra-host latency of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
 \end{figure} 
+
+\begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_exist_cpu.pdf} 
+     \label{fig:eval_exist_cpu}
+     \caption{The cpu usage of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
+\end{figure} 
+
+Conclusions:
+\begin{itemize}
+  \item The intra-host throughput of existing solutions are less than 40Gb/s.
+  \item The throughput, latency of two containers with host mode is close to the throughput of processes.
+  \item All the existing solutions put a heavy load on CPU.
+\end{itemize}
 
 \subsection{Opportunities to build a better container networks}
 P1: [Comparing container networking with other solutions]: In Sec 1, we have already seen the poor performance and high overhead of current container networking solution. Given containers are essentially processes, there are multiple better ways for two containers to communicate with each other.
