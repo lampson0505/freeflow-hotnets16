@@ -72,57 +72,29 @@ an IP header with destination IP 192.168.1.2 (Host-2's IP) on top of the packet
 and send it to Host-2. Host-2 decapsulates the packet after receiving it
 and deliver it to Container-3.  
 
-There are two components which significantly limit the performance
+There are two bottlenecks which significantly limit the performance
 of current container overlay networks. The first one is the network bridge
 connecting containers and software routers. It is a software implementation
 of a subset of the ANSI/IEEE 802.1d standard~\cite{?} which forwards packets
-according to Ethernet addresses. Tremendous CPU resource is 
+according to Ethernet addresses. Tremendous CPU resource is spent on matching
+addresses and data copying. The second bottleneck is the software router, since
+CPUs are used to performance the encapsulations, decapsulations and packet matching/forwarding.
 
 
+\subsection{Opportunities for better networking}
 
-The Linux bridge code implements a subset of the ANSI/IEEE 802.1d standard.
+The key to achieve a high performance and low overhead overlay network
+for containers is bypassing the performance bottlenecks, including
+bridges, software routers and host OS kernel, on data-plane. Given that
+containers are essentially processes, the communication channels provided
+by IPC and hardware offloading techniques give us numerous hammers to 
+build a better container network. For instance, 
+containers within a single host (like Container-1 and 
+Container-2 in Figure~\ref{fig:overlay}) can communicate via 
+shared-memory and software routers in different hosts can talk via RDMA, 
+which helps to bypass performance bottlenecks.
 
-
-A bridge is a way to connect two Ethernet segments together in a protocol independent way. Packets are forwarded based on Ethernet address, rather than IP address (like a router). Since forwarding is done at Layer 2, all protocols can go transparently through a bridge.
-
- [1]. The original Linux bridging was first done in Linux 2.2, then rewritten by Lennert Buytenhek. The code for bridging has been integrated into 2.4 and 2.6 kernel series.
-
-
-
-\subsection{Existing Solutions of Container Networking}
-
-P1: [Details and related work for existing container network solutions]There are two networking modes to inter-connect containers over multiple hosts:
-
-\begin{itemize}
-  \item Host mode: breaking the portability and independency
-  \item Overlay mode: keeping the portability and independency
-  \begin{itemize}
-  \item Docker native overlay
-  \item Weave
-  \item Caliber (Optional)
-  \end{itemize}  
-\end{itemize}
-
-
-Conclusions:
-\begin{itemize}
-  \item The intra-host throughput of existing solutions are less than 40Gb/s.
-  \item The throughput, latency of two containers with host mode is close to the throughput of processes.
-  \item All the existing solutions put a heavy load on CPU. CPU is the main bottleneck for throughput.
-\end{itemize}
-
-\subsection{Opportunities to build a better container networks}
-P1: [Comparing container networking with other solutions]: In Sec 1, we have already seen the poor performance and high overhead of current container networking solution. Given containers are essentially processes, there are multiple better ways for two containers to communicate with each other.
-
-\begin{itemize}
-  \item Shared memory
-  \item RDMA
-  \item DPDK (not sure whether we have time to do it)
-\end{itemize}
-
-\subsubsection{Intra-host communication}
-
-Throughput:
+%Throughput:
      \begin{figure}[ht]
      \centering 
      \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_thr.pdf}      
@@ -130,7 +102,7 @@ Throughput:
      \caption{} 
      \end{figure}
 
-Latency:    
+%Latency:    
      \begin{figure}[ht]
      \centering 
      \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_latency.pdf}      
@@ -138,34 +110,49 @@ Latency:
      \caption{} 
      \end{figure}
 
-CPU usage:     
+%CPU usage:     
      \begin{figure}[ht]
      \centering 
      \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_cpu.pdf}      
      \label{fig:eval_baremetal_cpu}
      \caption{} 
      \end{figure}
-     
-\begin{itemize}
-  \item Communication via bridge mode only achieves 27Gb/s throughput, 1 ms latency but uses near to 200\% of cpu. (Host mode and overlay mode are similar.)
-  \item RDMA only improves the throughput to 40Gb/s for containers on the same machine, the latency is still 1ms, though it has a low cpu usage.
-  \item Shared memory can achieve near-to-memory-bandwidth throughput, lowest latency, but still burns some cpu. 
-\end{itemize}
+
+To understand the network performance and overhead when containers
+talk via shared-memory and RDMA \footnote{In this paper, we choose RDMA
+as a representative hardware offloading technique, and we will consider other
+alternatives in the future.}, we conducted network bandwidth and latency benchmarks between two containers. In the shared-memory case, the sender
+container opens a pieces of shared memory and write data into it, and 
+the receiver container can read the memory once it gets the pointer of 
+the shared memory from the sender; In the RDMA case, both the sender
+and the receiver use host modes and communicate with the standard RDMA API
+over the host NICs. We use Weave to in the evaluation of existing overlay
+networks. The results are shown in Figure XXX.
+
+Figure~\ref{fig:eval_baremetal_thr} shows that in intra-host cases, the bandwidth between two
+containers can reach the NIC speed at about 40Gbps then RDMA is used and 
+even exceed the limitation of NIC speed to approach to memory bandwidth when
+they use shared-memory is used. As shown in Figure The price of the high bandwidth of shared-memory is high CPU utilization due to data-copying when the sender writes data into
+the shared-memory, while RDMA has negligible CPU overhead because it directly uses NICs and DMA controllers for data copying and packet processing.
+Figure~\ref{fig:eval_exist_latency} show the latency when a sender 
+transfers XXX bytes to the receiver. We can see that both shared-memory
+and RDMA have XXX orders of magnitudes reduction in latency compared with Weave.
+Overall, we can conclude that both shared-memory and RDMA have 
+significant improvement in network performance and reduction in CPU overhead,
+compared with existing overlay networking solutions.
+
+Therefore, we have a huge opportunity to achieve a high performance
+and low overhead network if we can enable shared-memory and RDMA 
+in the data-plane of container overlay networks.
+
+\subsection{Challenges}
+
+(1) Using standard APIs, transparent to containers;
 
 
-\subsubsection{Inter-host communication}
+(2) Smoothly integrating shared-memory and RDMA according to containers' locations.
 
-
-
-\subsection{Our Goals}
-P1: [Goal] We want to build a container overlay networking solution which can guarantee the best network performance while keeping portability and independency for containers.
-
-P2: [Specific requirements, challenges]
-\begin{itemize}
-  \item Smartly choosing network solutions (e.g. shared- memory, RDMA, DPDK, etc.) according to multiple factors.
-  \item Making the network solution selection and switching be transparent to containers.
-  \item IP assignments is independent to container's locations.
-\end{itemize}
+(3) Optimizations like removing unnecessary data copies.
 
 %%% commented content 
 \iffalse
