@@ -61,33 +61,6 @@ P1: [Details and related work for existing container network solutions]There are
   \end{itemize}  
 \end{itemize}
 
-\begin{figure}[ht]
-     \centering 
-     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_exist_bw.pdf} 
-     \label{fig:eval_exist_bw}
-     \caption{The intra-host throughput of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
-\end{figure} 
-
-\begin{figure}[ht]
-     \centering 
-     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_exist_latency.pdf} 
-     \label{fig:eval_exist_latency}
-     \caption{The intra-host latency of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
-\end{figure} 
-
-\begin{figure}[ht]
-     \centering 
-     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_exist_cpu.pdf} 
-     \label{fig:eval_exist_cpu}
-     \caption{The cpu usage of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
-\end{figure} 
-
-\begin{figure}[ht]
-     \centering 
-     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_bw_cpu.pdf}      
-     \label{fig:eval_bw_cpu}
-     \caption{} 
-\end{figure}
 
 Conclusions:
 \begin{itemize}
@@ -152,8 +125,37 @@ P2: [Specific requirements, challenges]
   \item IP assignments is independent to container's locations.
 \end{itemize}
 
-% comment 
+%%% commented content 
 \iffalse
+
+\begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_exist_bw.pdf} 
+     \label{fig:eval_exist_bw}
+     \caption{The intra-host throughput of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
+\end{figure} 
+
+\begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_exist_latency.pdf} 
+     \label{fig:eval_exist_latency}
+     \caption{The intra-host latency of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
+\end{figure} 
+
+\begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_exist_cpu.pdf} 
+     \label{fig:eval_exist_cpu}
+     \caption{The cpu usage of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
+\end{figure} 
+
+\begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_bw_cpu.pdf}      
+     \label{fig:eval_bw_cpu}
+     \caption{} 
+\end{figure}
+
 
 * Figures:
 
