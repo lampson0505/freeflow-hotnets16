@@ -1,6 +1,107 @@
 \section{Background and Motivation}
 \label{sec:motivation}
 
+\subsection{Existing Solutions of Container Networking}
+
+P1: [Details and related work for existing container network solutions]There are two networking modes to inter-connect containers over multiple hosts:
+
+\begin{itemize}
+  \item Host mode: breaking the portability and independency
+  \item Overlay mode: keeping the portability and independency
+  \begin{itemize}
+  \item Docker native overlay
+  \item Weave
+  \item Caliber (Optional)
+  \end{itemize}  
+\end{itemize}
+
+\begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.35\textwidth]{figures/motivation/eval_exist_bw.pdf} 
+     \label{fig:eval_exist_bw}
+     \caption{The intra-host throughput of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
+\end{figure} 
+
+Conclusions:
+\begin{itemize}
+  \item The intra-host throughput of existing solutions are less than 40Gb/s.
+  \item The throughput of two containers with host mode is close to the throughput of processes.
+\end{itemize}
+
+\subsection{Opportunities to build a better container networks}
+P1: [Comparing container networking with other solutions]: In Sec 1, we have already seen the poor performance and high overhead of current container networking solution. Given containers are essentially processes, there are multiple better ways for two containers to communicate with each other.
+
+\begin{itemize}
+  \item Shared memory
+  \item RDMA
+  \item DPDK (not sure whether we have time to do it)
+\end{itemize}
+
+\subsubsection{Intra-host communication}
+
+Throughput:
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_thr.pdf}      
+     \label{fig:eval_baremetal_thr}
+     \caption{} 
+     \end{figure}
+
+Latency:    
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_latency.pdf}      
+     \label{fig:eval_baremetal_latency}
+     \caption{} 
+     \end{figure}
+
+CPU usage:     
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_cpu.pdf}      
+     \label{fig:eval_baremetal_cpu}
+     \caption{} 
+     \end{figure}
+     
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_bw_cpu.pdf}      
+     \label{fig:eval_bw_cpu}
+     \caption{} 
+     \end{figure}
+     
+\begin{itemize}
+  \item Communication via bridge mode only achieves 27Gb/s throughput, 1 ms latency but uses near to 200\% of cpu. (Host mode and overlay mode are similar.)
+  \item RDMA only improves the throughput to 40Gb/s for containers on the same machine, the latency is still 1ms, though it has a low cpu usage.
+  \item Shared memory can achieve near-to-memory-bandwidth throughput, lowest latency, but still burns some cpu. 
+\end{itemize}
+
+
+\subsubsection{Inter-host communication}
+
+
+
+\subsection{Our Goals}
+P1: [Goal] We want to build a container overlay networking solution which can guarantee the best network performance while keeping portability and independency for containers.
+
+P2: [Specific requirements, challenges]
+\begin{itemize}
+  \item Smartly choosing network solutions (e.g. shared- memory, RDMA, DPDK, etc.) according to multiple factors.
+  \item Making the network solution selection and switching be transparent to containers.
+  \item IP assignments is independent to container's locations.
+\end{itemize}
+
+% comment 
+\iffalse
+
+* Figures:
+
+* Throughput comparison (intra- and inter-host)
+
+* CPU comparison
+
+* Latency comparison
+
 In this section, we present measurement results that demonstrates the network performance and resource overhead of different optional network channels. We focus on network throughput and latency when containers are located in the same or different hosts. 
 We choose two kinds of hosts: physical machines and VMs in public clouds.
 
@@ -43,8 +144,6 @@ We measure the throughput and latency of TCP/IP, Shared-Mem and RDMA under cases
 (3) two VMs from Azure or EC2.
 
 \subsection{Intra-host performance}
-
-
 \subsubsection{throughput vs. latency vs. cpu usage}
 
 \begin{figure*}[t]
@@ -92,8 +191,6 @@ We measure the throughput and latency of TCP/IP, Shared-Mem and RDMA under cases
   \item Host-mode provides a better performance of 38 Gb/s. 
 \end{itemize}
 
-% comment 
-\iffalse
 \subsection{Intra-host Network Performance}
 
 \para{Throughput}
