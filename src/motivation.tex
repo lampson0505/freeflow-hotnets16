@@ -1,6 +1,52 @@
 \section{Background and Motivation}
 \label{sec:motivation}
 
+In this section, we ...
+
+\subsection{Architecture of containerized applications}
+
+\begin{figure*}[!h]  
+	\centering   
+	\includegraphics[width=6.7in]{figures/deployment-cases}   
+	\caption{\label{fig:deploy-cases} Representative running environments of containers.}   
+\end{figure*}   
+
+
+%\begin{table} [t!]
+%\centering
+%\small
+%\begin{tabular}{ c || c | c | c | c }
+%  \hline
+%  Constraint & Case (a) & Case (b) & Case (c) & Case (d) \\ \hline \hline
+%  N/A & SharedMem & RDMA & SharedMem & RDMA \\ \hline
+%  w/o trust & TCP/IP & TCP/IP & TCP/IP & TCP/IP \\ \hline
+%  w/o RDMA NIC & SharedMem & TCP/IP & SharedMem & TCP/IP \\ \hline
+%\end{tabular}
+%\caption{\label{tab:best-network} The suggested network solution under %different running environments in Figure~\ref{fig:deploy-cases} and constraints.}
+%\normalsize
+%\end{table}
+
+Nowadays, a containerized application is usually composed by multiple containers. For example, each master and slave node in Hadoop is an individual container; A web service can include layers, such as load balancer, web server,
+in-memory cache and backend database, and each layer can be a distributed 
+system with multiple containerized nodes. 
+These containers are usually 
+deployed into a multi-host server cluster, and the deployment is usually 
+controlled by a cluster orchestrator, e.g. Mesos~\cite{?}. 
+Such architecture makes it easier
+to upgrade the nodes or mitigate failures, since a stopped container can be quickly replaced by a new one on the same or another host.
+
+Working as a single application, containers need to exchange data, and the network performance has a huge impact on the overall application performance.
+Depending on whether 
+containers run on bare-metal hosts or VM hosts, Figure~\ref{fig:deploy-cases}
+illustrates four representative cases for a container networking solutions
+to handle. 
+%As shown later in this section, one networking solution has 
+%different efficiency and feasibility in different cases. 
+In this paper, 
+we focus on the first two cases and discuss how to support the second two
+in the future.
+
+
 \subsection{Existing Solutions of Container Networking}
 
 P1: [Details and related work for existing container network solutions]There are two networking modes to inter-connect containers over multiple hosts:
@@ -118,33 +164,18 @@ P2: [Specific requirements, challenges]
 * Latency comparison
 
 In this section, we present measurement results that demonstrates the network performance and resource overhead of different optional network channels. We focus on network throughput and latency when containers are located in the same or different hosts. 
-We choose two kinds of hosts: physical machines and VMs in public clouds.
 
-\subsection{Running environments of containers}
 
-\begin{table} [t!]
-\centering
-\small
-\begin{tabular}{ c || c | c | c | c }
-  \hline
-  Constraint & Case (a) & Case (b) & Case (c) & Case (d) \\ \hline \hline
-  N/A & SharedMem & RDMA & SharedMem & RDMA \\ \hline
-  w/o trust & TCP/IP & TCP/IP & TCP/IP & TCP/IP \\ \hline
-  w/o RDMA NIC & SharedMem & TCP/IP & SharedMem & TCP/IP \\ \hline
-\end{tabular}
-\caption{\label{tab:best-network} The suggested network solution under different running environments in Figure~\ref{fig:deploy-cases} and constraints.}
-\normalsize
-\end{table}
+\subsection{Existing container networking solutions}
 
-Nowadays, a containerlized application is usually composed by multiple containers. For example, each master and slave node in Hadoop is an invividual container; A web service can include layers, such as load balancer, web server,
-in-memory cache and backend database, and eacy layer can be a distributed 
-system with multiple containerlized nodes. These containers are usually 
-deployed into a multi-host server cluster, and the deployment is usually 
-controlled by a cluster orchestrator, e.g. Mesos~\cite{?}. Working as a single 
-application, the containers need to exchange data, and the network performance
-has a huge impact on the overall application performance. 
+A bridge is a way to connect two Ethernet segments together in a protocol independent way. Packets are forwarded based on Ethernet address, rather than IP address (like a router). Since forwarding is done at Layer 2, all protocols can go transparently through a bridge.
 
-Introduce the four representative cases of Figure~\ref{fig:deploy-cases}...
+The Linux bridge code implements a subset of the ANSI/IEEE 802.1d standard. [1]. The original Linux bridging was first done in Linux 2.2, then rewritten by Lennert Buytenhek. The code for bridging has been integrated into 2.4 and 2.6 kernel series.
+
+
+\subsection{Opportunities}
+
+\subsection{Challenges}
 
 \subsection{The ineffiencies in container networking}
 
