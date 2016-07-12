@@ -103,32 +103,12 @@ P1: [Details and related work for existing container network solutions]There are
   \end{itemize}  
 \end{itemize}
 
-\begin{figure}[ht]
-     \centering 
-     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_exist_bw.pdf} 
-     \label{fig:eval_exist_bw}
-     \caption{The intra-host throughput of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
-\end{figure} 
-
-\begin{figure}[ht]
-     \centering 
-     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_exist_latency.pdf} 
-     \label{fig:eval_exist_latency}
-     \caption{The intra-host latency of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
-\end{figure} 
-
-\begin{figure}[ht]
-     \centering 
-     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_exist_cpu.pdf} 
-     \label{fig:eval_exist_cpu}
-     \caption{The cpu usage of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
-\end{figure} 
 
 Conclusions:
 \begin{itemize}
   \item The intra-host throughput of existing solutions are less than 40Gb/s.
   \item The throughput, latency of two containers with host mode is close to the throughput of processes.
-  \item All the existing solutions put a heavy load on CPU.
+  \item All the existing solutions put a heavy load on CPU. CPU is the main bottleneck for throughput.
 \end{itemize}
 
 \subsection{Opportunities to build a better container networks}
@@ -166,13 +146,6 @@ CPU usage:
      \caption{} 
      \end{figure}
      
-     \begin{figure}[ht]
-     \centering 
-     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_bw_cpu.pdf}      
-     \label{fig:eval_bw_cpu}
-     \caption{} 
-     \end{figure}
-     
 \begin{itemize}
   \item Communication via bridge mode only achieves 27Gb/s throughput, 1 ms latency but uses near to 200\% of cpu. (Host mode and overlay mode are similar.)
   \item RDMA only improves the throughput to 40Gb/s for containers on the same machine, the latency is still 1ms, though it has a low cpu usage.
@@ -194,8 +167,37 @@ P2: [Specific requirements, challenges]
   \item IP assignments is independent to container's locations.
 \end{itemize}
 
-% comment 
+%%% commented content 
 \iffalse
+
+\begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_exist_bw.pdf} 
+     \label{fig:eval_exist_bw}
+     \caption{The intra-host throughput of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
+\end{figure} 
+
+\begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_exist_latency.pdf} 
+     \label{fig:eval_exist_latency}
+     \caption{The intra-host latency of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
+\end{figure} 
+
+\begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_exist_cpu.pdf} 
+     \label{fig:eval_exist_cpu}
+     \caption{The cpu usage of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
+\end{figure} 
+
+\begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_bw_cpu.pdf}      
+     \label{fig:eval_bw_cpu}
+     \caption{} 
+\end{figure}
+
 
 * Figures:
 
