@@ -3,12 +3,12 @@
 
 In this section, we ...
 
-\subsection{Running environments of containers}
+\subsection{Architecture of containerized applications}
 
 \begin{figure*}[!h]  
 	\centering   
 	\includegraphics[width=6.7in]{figures/deployment-cases}   
-	\caption{\label{fig:deploy-cases} Representitive running environments of containers.}   
+	\caption{\label{fig:deploy-cases} Representative running environments of containers.}   
 \end{figure*}   
 
 
@@ -26,13 +26,17 @@ In this section, we ...
 %\normalsize
 %\end{table}
 
-Nowadays, a containerlized application is usually composed by multiple containers. For example, each master and slave node in Hadoop is an invividual container; A web service can include layers, such as load balancer, web server,
-in-memory cache and backend database, and eacy layer can be a distributed 
-system with multiple containerlized nodes. These containers are usually 
+Nowadays, a containerized application is usually composed by multiple containers. For example, each master and slave node in Hadoop is an individual container; A web service can include layers, such as load balancer, web server,
+in-memory cache and backend database, and each layer can be a distributed 
+system with multiple containerized nodes. 
+These containers are usually 
 deployed into a multi-host server cluster, and the deployment is usually 
-controlled by a cluster orchestrator, e.g. Mesos~\cite{?}. Working as a single 
-application, the containers need to exchange data, and the network performance
-has a huge impact on the overall application performance. Depending on whether 
+controlled by a cluster orchestrator, e.g. Mesos~\cite{?}. 
+Such architecture makes it easier
+to upgrade the nodes or mitigate failures, since a stopped container can be quickly replaced by a new one on the same or another host.
+
+Working as a single application, containers need to exchange data, and the network performance has a huge impact on the overall application performance.
+Depending on whether 
 containers run on bare-metal hosts or VM hosts, Figure~\ref{fig:deploy-cases}
 illustrates four representative cases for a container networking solutions
 to handle. 
@@ -41,6 +45,126 @@ to handle.
 In this paper, 
 we focus on the first two cases and discuss how to support the second two
 in the future.
+
+
+\subsection{Existing Solutions of Container Networking}
+
+P1: [Details and related work for existing container network solutions]There are two networking modes to inter-connect containers over multiple hosts:
+
+\begin{itemize}
+  \item Host mode: breaking the portability and independency
+  \item Overlay mode: keeping the portability and independency
+  \begin{itemize}
+  \item Docker native overlay
+  \item Weave
+  \item Caliber (Optional)
+  \end{itemize}  
+\end{itemize}
+
+\begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_exist_bw.pdf} 
+     \label{fig:eval_exist_bw}
+     \caption{The intra-host throughput of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
+\end{figure} 
+
+\begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_exist_latency.pdf} 
+     \label{fig:eval_exist_latency}
+     \caption{The intra-host latency of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
+\end{figure} 
+
+\begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_exist_cpu.pdf} 
+     \label{fig:eval_exist_cpu}
+     \caption{The cpu usage of existing solutions. Docker-host is in host mode; Docker0 is in bridge mode; Weave is in overlay mode.} 
+\end{figure} 
+
+Conclusions:
+\begin{itemize}
+  \item The intra-host throughput of existing solutions are less than 40Gb/s.
+  \item The throughput, latency of two containers with host mode is close to the throughput of processes.
+  \item All the existing solutions put a heavy load on CPU.
+\end{itemize}
+
+\subsection{Opportunities to build a better container networks}
+P1: [Comparing container networking with other solutions]: In Sec 1, we have already seen the poor performance and high overhead of current container networking solution. Given containers are essentially processes, there are multiple better ways for two containers to communicate with each other.
+
+\begin{itemize}
+  \item Shared memory
+  \item RDMA
+  \item DPDK (not sure whether we have time to do it)
+\end{itemize}
+
+\subsubsection{Intra-host communication}
+
+Throughput:
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_thr.pdf}      
+     \label{fig:eval_baremetal_thr}
+     \caption{} 
+     \end{figure}
+
+Latency:    
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_latency.pdf}      
+     \label{fig:eval_baremetal_latency}
+     \caption{} 
+     \end{figure}
+
+CPU usage:     
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_cpu.pdf}      
+     \label{fig:eval_baremetal_cpu}
+     \caption{} 
+     \end{figure}
+     
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.4\textwidth]{figures/motivation/eval_bw_cpu.pdf}      
+     \label{fig:eval_bw_cpu}
+     \caption{} 
+     \end{figure}
+     
+\begin{itemize}
+  \item Communication via bridge mode only achieves 27Gb/s throughput, 1 ms latency but uses near to 200\% of cpu. (Host mode and overlay mode are similar.)
+  \item RDMA only improves the throughput to 40Gb/s for containers on the same machine, the latency is still 1ms, though it has a low cpu usage.
+  \item Shared memory can achieve near-to-memory-bandwidth throughput, lowest latency, but still burns some cpu. 
+\end{itemize}
+
+
+\subsubsection{Inter-host communication}
+
+
+
+\subsection{Our Goals}
+P1: [Goal] We want to build a container overlay networking solution which can guarantee the best network performance while keeping portability and independency for containers.
+
+P2: [Specific requirements, challenges]
+\begin{itemize}
+  \item Smartly choosing network solutions (e.g. shared- memory, RDMA, DPDK, etc.) according to multiple factors.
+  \item Making the network solution selection and switching be transparent to containers.
+  \item IP assignments is independent to container's locations.
+\end{itemize}
+
+% comment 
+\iffalse
+
+* Figures:
+
+* Throughput comparison (intra- and inter-host)
+
+* CPU comparison
+
+* Latency comparison
+
+In this section, we present measurement results that demonstrates the network performance and resource overhead of different optional network channels. We focus on network throughput and latency when containers are located in the same or different hosts. 
+
 
 \subsection{Existing container networking solutions}
 
@@ -66,8 +190,6 @@ We measure the throughput and latency of TCP/IP, Shared-Mem and RDMA under cases
 (3) two VMs from Azure or EC2.
 
 \subsection{Intra-host performance}
-
-
 \subsubsection{throughput vs. latency vs. cpu usage}
 
 \begin{figure*}[t]
@@ -115,8 +237,6 @@ We measure the throughput and latency of TCP/IP, Shared-Mem and RDMA under cases
   \item Host-mode provides a better performance of 38 Gb/s. 
 \end{itemize}
 
-% comment 
-\iffalse
 \subsection{Intra-host Network Performance}
 
 \para{Throughput}
