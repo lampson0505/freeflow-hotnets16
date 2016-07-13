@@ -108,28 +108,12 @@ Container-2 in Figure~\ref{fig:overlay}) can communicate via
 shared-memory and software routers in different hosts can talk via RDMA, 
 which helps to bypass performance bottlenecks.
 
-%Throughput:
      \begin{figure}[ht]
      \centering 
-     \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_thr.pdf}      
-     \label{fig:eval_baremetal_thr}
-     \caption{} 
-     \end{figure}
-
-%Latency:    
-     \begin{figure}[ht]
-     \centering 
-     \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_latency.pdf}      
-     \label{fig:eval_baremetal_latency}
-     \caption{} 
-     \end{figure}
-
-%CPU usage:     
-     \begin{figure}[ht]
-     \centering 
-     \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_cpu.pdf}      
-     \label{fig:eval_baremetal_cpu}
-     \caption{} 
+     \includegraphics[width=0.5\textwidth]{figures/motivation/mot_rdma_shm.pdf}      
+     \label{fig:mot_rdma_shm}
+     \caption{The throughput, CPU usage, latency and NIC utilization for a pair of 
+     containers communicating via overlay network, RDMA or shared memory.} 
      \end{figure}
 
 To understand the network performance and overhead when containers
@@ -170,6 +154,30 @@ in the data-plane of container overlay networks.
 
 %%% commented content 
 \iffalse
+
+%Throughput:
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_thr.pdf}      
+     \label{fig:eval_baremetal_thr}
+     \caption{} 
+     \end{figure}
+
+%Latency:    
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_latency.pdf}      
+     \label{fig:eval_baremetal_latency}
+     \caption{} 
+     \end{figure}
+
+%CPU usage:     
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.32\textwidth]{figures/motivation/eval_baremetal_cpu.pdf}      
+     \label{fig:eval_baremetal_cpu}
+     \caption{} 
+     \end{figure}
 
 \begin{figure}[ht]
      \centering 
