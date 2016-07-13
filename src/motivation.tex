@@ -45,6 +45,8 @@ In this paper,
 we focus on the cases (a) and (b) in Figure~\ref{fig:deploy-cases} and discuss how to support the other two cases in the future.
 
 We set up two iPerf containers running in server and client roles respectively and benchmark the network bandwidth between them when they use three different networking modes:
+\vyas{2.1 has to be about background and  the status quo. not about your experiment. i would make 2.2 your experiment setup details etc}
+
 \begin{itemize}
 	\item {\em Host}, in which one container binds an interface
 and a port on the host and use the host's IP to communicate, like an ordinary
@@ -59,6 +61,11 @@ process.
 
 
 \subsection{Existing container overlay networks}
+
+\vyas{seems like a logical disconnect to me .. why is there a section on overlay networks?}
+
+\vyas{i would keep it simple as follows: 2.1 -- background 2.2 -- measurements 2.3 -- insights. dont get too fancy 
+ in subsection titles/structure}
 
 \begin{figure}[h]  
 	\centering   

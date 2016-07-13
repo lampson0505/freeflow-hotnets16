@@ -5,7 +5,8 @@
 Containerization is a critical trend of applications running in data centers.
 By wrapping a process into a complete filesystem and namespace cell, a container
 has everything needed to run the process, including executables, libraries, system
-tools, configurations, etc., without relying on external dependencies. 
+tools, configurations, etc., without relying on external dependencies.
+ \vyas{not sure why this is unique to container .. VM offers the same thing to?} 
 Therefore, one container
 is highly portable to run on any host with a proper OS kernel, and independent
 with other containers on the same host without naming or version conflicts.
@@ -27,7 +28,8 @@ Instead of Host mode, people prefer {\em Overlay} mode in container networking.
 In this mode, containers are connected via an overlay network which 
 is built by software network bridge and routers. Containers then use
 overlay IP to communicate, and each container can keep its overlay IP
-no matter which host it is located. 
+no matter which host it is located.  \vyas{getting a bit too low level for an intro. try to elevate 
+ it a bit and say this is status quo on the networking aspect}
 
 However, despite of the flexibility, we find in measurements that overlay
 networks can easily become the performance bottleneck of containerized
@@ -44,6 +46,7 @@ limits the network throughput. As shown in Figure~\ref{fig:intro-exist}(b),
 CPU are nearly saturated for processing the packets. Overall, the poor
 performance and high overhead of overlay networks comes from the packet processing
 burden to host OS kernel, and we will explain the performance penalty in more details in \S\ref{sec:motivation},
+\vyas{not a fan of putting result graphs in intro. but if you feel this sells better .. we can keep it}
 
 \begin{figure}[t!]
      \centering 
@@ -66,6 +69,8 @@ However, SR-IOV cannot be directly applied on containers because containers
 do not have a hypervisor for SR-IOV to work with. In addition, one host can have
 hundreds of containers which far exceeds the number of visualized NICs (\harry{how many?}) SR-IOV can support from a physical NIC. Furthermore, it is also not
 favorable for containers to directly use kernel bypassing networking mechanisms like RDMA or DPDK, because they will have to use te host mode. 
+\vyas{i dont understand what point this para is trying to make. lead in with the point you want to make -- e.g., While poor network i/o is not 
+a new problem, containers make it uniquely challenging and perhaps impossible to adopt these directly .. Speciically..XYZ} 
 
 An ideal solution for container networking is an overlay network with flexible
 IP assignment and routing in control-plane and high 
@@ -79,4 +84,4 @@ containers should use a standard API and overlay IP to communicate. The network
 solution should be entirely transparent to them. Second, the overlay network
 should avoid unnecessary memory copies when mapping the data transfer from
 overlay network to physical network for efficiency; Finally, special optimizations, such as using shared-memory for intra-host networking, should be
-implemented to push the performance to the limit.
+implemented to push the performance to the limit. \vyas{this solution para doesnt sound like hotnets either.}
