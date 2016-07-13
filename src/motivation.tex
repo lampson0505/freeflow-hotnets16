@@ -116,14 +116,6 @@ Container-2 in Figure~\ref{fig:overlay}) can communicate via
 shared-memory and software routers in different hosts can talk via RDMA, 
 which helps to bypass performance bottlenecks.
 
-     \begin{figure}[ht]
-     \centering 
-     \includegraphics[width=0.5\textwidth]{figures/motivation/mot_rdma_shm.pdf}      
-     \label{fig:mot_rdma_shm}
-     \caption{The throughput, CPU usage, latency and NIC utilization for a pair of 
-     containers communicating via overlay network, RDMA or shared memory.} 
-     \end{figure}
-
 To understand the network performance and overhead when containers
 talk via shared-memory and RDMA \footnote{In this paper, we choose RDMA
 as a representative hardware offloading technique, and we will consider other
@@ -134,6 +126,14 @@ the shared memory from the sender; In the RDMA case, both the sender
 and the receiver use host modes and communicate with the standard RDMA API
 over the host NICs. We use Weave to in the evaluation of existing overlay
 networks. The results are shown in Figure XXX.
+
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.5\textwidth]{figures/motivation/mot_rdma_shm.pdf}      
+     \label{fig:mot_rdma_shm}
+     \caption{The throughput, CPU usage, latency and NIC utilization for a pair of 
+     containers communicating via overlay network, RDMA or shared memory.} 
+     \end{figure}
 
 Figure~\ref{fig:eval_baremetal_thr} shows that in intra-host cases, the bandwidth between two
 containers can reach the NIC speed at about 40Gbps then RDMA is used and 
@@ -146,6 +146,17 @@ and RDMA have XXX orders of magnitudes reduction in latency compared with Weave.
 Overall, we can conclude that both shared-memory and RDMA have 
 significant improvement in network performance and reduction in CPU overhead,
 compared with existing overlay networking solutions.
+
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.5\textwidth]{figures/motivation/mot_rdma_inter.pdf}      
+     \label{fig:mot_rdma_inter}
+     \caption{The throughput, CPU usage, latency and NIC utilization for a pair of 
+     containers communicating via overlay network, RDMA or shared memory in 
+     inter-host setting.} 
+     \end{figure}
+     
+ \tianlong{Here we need a paragraph say for inter-host setting, we can use RDMA to achieve high bw, low latency.}
 
 Therefore, we have a huge opportunity to achieve a high performance
 and low overhead network if we can enable shared-memory and RDMA 
