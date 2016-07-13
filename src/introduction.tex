@@ -12,11 +12,13 @@ with other containers on the same host without naming or version conflicts.
 Such portability and independence significantly simplifies the life cycle of
 a containerized application, from testing to high availability maintenance.
 
-Ideally, containers should also have good performance and resource efficiency,
-since they can directly run on bare-metal hosts without the overhead to run
-hypervisor and guest OS in traditional visualization. However, perhaps 
-surprisingly, we find measured evidence of significant bottlenecks in the 
-network-level performance of containerized applications. We set up two iPerf containers running in server and client roles respectively and benchmark the network bandwidth between them when they use three different networking modes:
+Containers are also supposed to have good performance and resource efficiency,
+since they can directly run on bare-metal hosts without virtualization overhead.
+However, perhaps surprisingly, we find measured evidence of significant bottlenecks in the 
+network-level performance of containerized applications. 
+
+
+We set up two iPerf containers running in server and client roles respectively and benchmark the network bandwidth between them when they use three different networking modes:
 \begin{itemize}
 	\item {\em Host}, in which one container binds an interface
 and a port on the host and use the host's IP to communicate, like an ordinary
