@@ -9,62 +9,63 @@ tools, configurations, etc., without relying on external dependencies.
 Therefore, one container
 is highly portable to run on any host with a proper OS kernel, and independent
 with other containers on the same host without naming or version conflicts.
-Such portability and independence significantly simplifies the life cycle of
+Such {\em portability} and {\em independence} significantly simplifies 
+the life cycle of
 a containerized application, from testing to high availability maintenance.
 
-A containerized application usually have multiple containers which are connected
-by networks. Currently, there are two strategies to inter-connect containers:
-(i) {\em Host} mode: containers are binded to their host's IP and ports
-and communicate like ordinary processes on the host. 
-(ii) {\em Host} mode: containers are connected via an overlay network which 
-is built by software network bridge and routers. 
+A containerized application usually have multiple containers which are 
+deployed in a multi-host cluster and connected by networks. When a container
+is inter-connected with other containers, its portability and independence 
+also rely on the flexibility of the network. For instance, one way called 
+{\em Host} mode  is to bind each container to its host's IP
+and port and let the containers to communicate like ordinary processes.
+However, Host mode breaks the independence of a container by making it
+coordinate with other containers in the same host to avoid port conflicts
+and undermines the portability of a container by forcing its peers to
+update the IP address and ports when it is moved to another host.
+Instead of Host mode, people prefer {\em Overlay} mode in container networking.
+In this mode, containers are connected via an overlay network which 
+is built by software network bridge and routers. Containers then use
+overlay IP to communicate, and each container can keep its overlay IP
+no matter which host it is located. 
 
-\S\ref{sec:motivation} will provide more details of this mode.
-Perhaps surprisingly, we find measured evidence of significant bottlenecks in the network-level performance of containerized applications.
+However, despite of the flexibility, we find in measurements that overlay
+networks can easily become the performance bottleneck of containerized
+applications. 
 Figure~\ref{fig:intro-exist}(a) shows the network latency between two containers
-compared with two ordinary process on a single bare-metal host. 
-
-
-Figure~\ref{fig:intro_exist} shows the network bandwidth and latency between
-two containers running on a single bare-metal host. We compare the network
-performance of the two containers when they use {\em Host}, {\em Bridge}, and {\em Overlay} networking modes (refer \S\ref{sec:motivation} for details) with
-the performance between two ordinary processes on the same host. 
-Figure~\ref{fig:intro_exist}(a) shows 
-the network bandwidth between two containers running on bare-metal hosts with 
-Intel XXX CPU and Mellanox YYY NIC (40Gbps speed). Figure XXX (a) benchmarks
-three available networking modes when two containers are located in the same 
-host. Host mode has a throughput close to raw processes, while both bridge
-and overlay modes has a XXX\% throughput drop due to the overhead to 
-process packets in the host OS kernel. While the throughputs of all the three
-network modes are XXX\% lower than the NIC speed and YYY\& lower than the memory
-speed, Figure XXX (b) explains that the bottleneck is on CPU, since both
-the sender and the receiver saturate a CPU core for just processing the traffic.
-The results are similar when the two containers are on different hosts, as shown
-in Figure YYY. The bad performance and high CPU overhead inherently from 
-the TCP/IP stack used for inter-connecting containers. TCP/IP split data into 
-packets and each packet can generate numerous system calls, interrupts, task 
-switches and data coping, etc., which cost tremendous CPU cycles.
+on a single bare-metal host compared with two ordinary processes. 
+We can see that overlay network has about 1.2 ms latency which is XXX orders
+of magnitudes compared with ordinary processes and containers in Host mode.
+Moreover, Figure~\ref{fig:intro-exist}(b) shows that overlay network can only
+achieve about 20Gbps bandwidth between two containers on the same host 
+which is about XX\% compared with ordinary processes and containers in Host mode.
+In the bandwidth benchmarks, we also find that CPU is the bottleneck which 
+limits the network throughput. As shown in Figure~\ref{fig:intro-exist}(b),
+CPU are nearly saturated for processing the packets. Overall, the poor
+performance and high overhead of overlay networks comes from the packet processing
+burden to host OS kernel, and we will explain the performance penalty in more details in \S\ref{sec:motivation},
 
 \begin{figure}[t!]
      \centering 
      \includegraphics[width=0.46\textwidth]{figures/intro/intro_exist2.pdf} 
-     \caption{Network latency, bandwidth and CPU overhead between containers compared with ordinary processes in a single bare-metal host. \harry{swap (a) and (b)}} 
+     \caption{Network latency, bandwidth and CPU overhead between containers compared with ordinary processes in a single bare-metal host. \harry{swap (a) and (b). remove bridge, because we can merge bridge and overlay.}}
      \label{fig:intro-exist}
 \end{figure} 
 
-The inefficiency of current container networking will harm to applications which
-have high expectation on network performance in multiple aspects. On one hand,
-it will significantly impact the overall performance of large scale distributed systems, such as big data analytics, key-value store, machine learning, and so on.
-On the other hand, it forces the applications to reserve substantial CPU
+The inefficiency of current container networking (overlay mode) 
+will harm to applications which have high expectation  on network performance (e.g. < 5$\mu$s latency, > 40Gbps bandwidth~\cite{?}) in multiple aspects. 
+On one hand,
+it will significantly impact the overall performance of large scale distributed systems, such as big data analytics, key-value store, machine learning, and so on. On the other hand, it forces the applications to reserve substantial CPU
 resources to merely perform traffic processing, which significantly raise the 
-cost.
+cost. Alternatively, people have to give up the portability and independence
+of containers and go with the host mode. 
 
-In the state of art, the main idea to solve the inefficiency of TCP/IP stack 
-is to offload network processing directly to under-layer hardware, e.g. RDMA, 
-DPDK, TCP offloading engine, etc. However, these solutions are not favorable to container networking. This is because containers have to choose host mode to directly access the hosts' NICs. When using host mode, a container
-will have weak portability since its IP and port are changed once it moves
-to another host, and poor independence because it needs to coordinate with
-other containers on the same host to avoid port conflicts.
+In the networking of VMs, the main idea to eliminate the inefficiency of the virtual networks is leveraging SR-IOV to let VMs directly talk to the NICs of
+hosts, bypassing the host OS kernel and hypervisor. 
+However, SR-IOV cannot be directly applied on containers because containers 
+do not have a hypervisor for SR-IOV to work with. In addition, one host can have
+hundreds of containers which far exceeds the number of visualized NICs (\harry{how many?}) SR-IOV can support from a physical NIC. Furthermore, it is also not
+favorable for containers to directly use kernel bypassing networking mechanisms like RDMA or DPDK, because they will have to use te host mode. 
 
 An ideal solution for container networking is an overlay network with flexible
 IP assignment and routing in control-plane and high 
