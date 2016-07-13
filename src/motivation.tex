@@ -3,7 +3,7 @@
 
 In this section, we ...
 
-\subsection{Architecture of containerized applications}
+\subsection{Containerized applications}
 
 \begin{figure*}[h]  
 	\centering   
@@ -44,20 +44,21 @@ to handle.
 In this paper, 
 we focus on the cases (a) and (b) in Figure~\ref{fig:deploy-cases} and discuss how to support the other two cases in the future.
 
-We set up two iPerf containers running in server and client roles respectively and benchmark the network bandwidth between them when they use three different networking modes:
-\vyas{2.1 has to be about background and  the status quo. not about your experiment. i would make 2.2 your experiment setup details etc}
+%We set up two iPerf containers running in server and client roles respectively and benchmark the network bandwidth between them when they use three different networking modes:
+%\vyas{2.1 has to be about background and  the status quo. not about your experiment. i would make 2.2 your experiment setup details etc}
+%\harry{Sorry, I copied and pasted some text from intro. Have not cleaned the Section yet.}
 
-\begin{itemize}
-	\item {\em Host}, in which one container binds an interface
-and a port on the host and use the host's IP to communicate, like an ordinary
-process.
-	\item {\em Bridge}, in which all containers on the same host are connected to a common network bridge in OS kernel. It is only used for
-	intra-host communications.  
-	\item {\em Overlay}, in which each host runs a software router which
-	connects all containers on the host via bridge network. An overlay 
-	network crossing multiple hosts is constructed by the software routers
-	to achieve a uniform IP assignment and traffic routing on the overlay.
-\end{itemize}
+%\begin{itemize}
+%	\item {\em Host}, in which one container binds an interface
+%and a port on the host and use the host's IP to communicate, like an ordinary
+%process.
+%	\item {\em Bridge}, in which all containers on the same host are connected to a common network bridge in OS kernel. It is only used for
+%	intra-host communications.  
+%	\item {\em Overlay}, in which each host runs a software router which
+%	connects all containers on the host via bridge network. An overlay 
+%	network crossing multiple hosts is constructed by the software routers
+%	to achieve a uniform IP assignment and traffic routing on the overlay.
+%\end{itemize}
 
 
 \subsection{Existing container overlay networks}
@@ -87,7 +88,7 @@ an overlay IP (e.g. 1.1.1.1 to Container-1) and the host of this overlay IP
 is propagated among the software routers in the cluster. Therefore, containers
 can send and receive IP packets merely with their overlay IPs, agnostic to
 the real location of the other side. For instance, when a IP packet from
-Container-1 to Container-3 is send to Router-1, the latter knows 1.1.1.2
+Container-1 to Container-3 is send to Router-1, the latter knows 3.3.3.3
 (Container-3's overlay IP) is on Host-2, so that Router-1 will encapsulate 
 an IP header with destination IP 192.168.1.2 (Host-2's IP) on top of the packet
 and send it to Host-2. Host-2 decapsulates the packet after receiving it
