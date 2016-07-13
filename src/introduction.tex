@@ -12,33 +12,24 @@ with other containers on the same host without naming or version conflicts.
 Such portability and independence significantly simplifies the life cycle of
 a containerized application, from testing to high availability maintenance.
 
-Containers are also supposed to have good performance and resource efficiency,
-since they can directly run on bare-metal hosts without virtualization overhead.
-However, perhaps surprisingly, we find measured evidence of significant bottlenecks in the 
-network-level performance of containerized applications. 
+A containerized application usually have multiple containers which are connected
+by networks. Currently, there are two strategies to inter-connect containers:
+(i) {\em Host} mode: containers are binded to their host's IP and ports
+and communicate like ordinary processes on the host. 
+(ii) {\em Host} mode: containers are connected via an overlay network which 
+is built by software network bridge and routers. 
+
+\S\ref{sec:motivation} will provide more details of this mode.
+Perhaps surprisingly, we find measured evidence of significant bottlenecks in the network-level performance of containerized applications.
+Figure~\ref{fig:intro-exist}(a) shows the network latency between two containers
+compared with two ordinary process on a single bare-metal host. 
 
 
-We set up two iPerf containers running in server and client roles respectively and benchmark the network bandwidth between them when they use three different networking modes:
-\begin{itemize}
-	\item {\em Host}, in which one container binds an interface
-and a port on the host and use the host's IP to communicate, like an ordinary
-process.
-	\item {\em Bridge}, in which all containers on the same host are connected to a common network bridge in OS kernel. It is only used for
-	intra-host communications.  
-	\item {\em Overlay}, in which each host runs a software router which
-	connects all containers on the host via bridge network. An overlay 
-	network crossing multiple hosts is constructed by the software routers
-	to achieve a uniform IP assignment and traffic routing on the overlay.
-\end{itemize}
-
-\begin{figure}[ht]
-     \centering 
-     \includegraphics[width=0.5\textwidth]{figures/intro/intro_exist2.pdf} 
-     \label{fig:intro_exist}
-     \caption{The measurement on existing solutions.} 
-\end{figure} 
-
-Figure XXX shows
+Figure~\ref{fig:intro_exist} shows the network bandwidth and latency between
+two containers running on a single bare-metal host. We compare the network
+performance of the two containers when they use {\em Host}, {\em Bridge}, and {\em Overlay} networking modes (refer \S\ref{sec:motivation} for details) with
+the performance between two ordinary processes on the same host. 
+Figure~\ref{fig:intro_exist}(a) shows 
 the network bandwidth between two containers running on bare-metal hosts with 
 Intel XXX CPU and Mellanox YYY NIC (40Gbps speed). Figure XXX (a) benchmarks
 three available networking modes when two containers are located in the same 
@@ -53,6 +44,13 @@ in Figure YYY. The bad performance and high CPU overhead inherently from
 the TCP/IP stack used for inter-connecting containers. TCP/IP split data into 
 packets and each packet can generate numerous system calls, interrupts, task 
 switches and data coping, etc., which cost tremendous CPU cycles.
+
+\begin{figure}[t!]
+     \centering 
+     \includegraphics[width=0.46\textwidth]{figures/intro/intro_exist2.pdf} 
+     \caption{Network latency, bandwidth and CPU overhead between containers compared with ordinary processes in a single bare-metal host. \harry{swap (a) and (b)}} 
+     \label{fig:intro-exist}
+\end{figure} 
 
 The inefficiency of current container networking will harm to applications which
 have high expectation on network performance in multiple aspects. On one hand,

@@ -44,6 +44,20 @@ to handle.
 In this paper, 
 we focus on the cases (a) and (b) in Figure~\ref{fig:deploy-cases} and discuss how to support the other two cases in the future.
 
+We set up two iPerf containers running in server and client roles respectively and benchmark the network bandwidth between them when they use three different networking modes:
+\begin{itemize}
+	\item {\em Host}, in which one container binds an interface
+and a port on the host and use the host's IP to communicate, like an ordinary
+process.
+	\item {\em Bridge}, in which all containers on the same host are connected to a common network bridge in OS kernel. It is only used for
+	intra-host communications.  
+	\item {\em Overlay}, in which each host runs a software router which
+	connects all containers on the host via bridge network. An overlay 
+	network crossing multiple hosts is constructed by the software routers
+	to achieve a uniform IP assignment and traffic routing on the overlay.
+\end{itemize}
+
+
 \subsection{Existing container overlay networks}
 
 \begin{figure}[h]  
