@@ -1,1 +1,49 @@
 \section{System to Build} \label{sec:promise}
+
+%P1 introduce the two components we want to build
+\Name's main components will include a container locator and a virtualized NIC.
+The container locator can figure out where the location of the container is and
+decide the most efficient way for two containers to talk with each other (e.g. 
+via shared memory, rdma or dpdk).
+And the virtualized NIC emulates the necessary underlying resource structures 
+(e.g., send queue or receive queue of the NIC). In this way, the application will
+be using the standardized APIs without be aware of the actual communication
+mechanisms. The architecture of \Name is shown in Figure~\ref{fig:system_modules}.
+
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.5\textwidth]{figures/system/system_modules.pdf}      
+     \label{fig:system_modules}
+     \caption{The system architecture of \Name.} 
+     \end{figure}
+
+\subsection{Container Locator}
+The Container Locator is a logic module we will add inside the communication
+library of a container's application. For example, if the application is a RDMA application,
+the Container Locator will be inside library \texttt{libibverbs}. 
+
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.45\textwidth]{figures/system/system_locator.pdf}      
+     \label{fig:system_locator}
+     \caption{The logic flow of Container Locator.} 
+     \end{figure}
+
+The Container Locator send queries to Mesos and the cloud's Fabric Controller to locate
+the sender/receiver containers and decide the most efficient way they talk with each other.
+The logic flow of this process is as shown in Figure~\ref{fig:system_locator}.
+First the container 
+
+%We are going to add a logic module called Container Locator inside the application's
+%library for communication. For example, the  
+
+
+
+\subsection{Virtualized NIC}
+This virtualized NIC acts as a transparent layer between the application and the underlying network structure, intelligently and dynamically choosing the best communication mechanism, while maintaining compatibility with currently written applications.
+
+The decision of which mechanism to chose is based on the hardware capabilities of the hosts and the physical placement of the containers, while aiming for minimal CPU overhead and high throughput. This decision and switching between communication mechanism is done completely transparent from application.
+
+For intra-host communication, virtualized NIC will use shared memory communication inducing minimal pressure on the CPU while reaching high throughput (~ memory bandwidth). For inter-host communication, the virtualized NIC will prioritize RDMA communication when supported by the underlying hardware. Otherwise, it will use TCP/IP communication. 
+
+
