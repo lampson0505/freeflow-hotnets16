@@ -32,15 +32,23 @@ the Container Locator will be inside library \texttt{libibverbs}.
 The Container Locator send queries to Mesos (resource manager) and the cloud's Fabric Controller to locate
 the sender/receiver containers and decide the most efficient way they talk with each other.
 The logic flow of this process is as shown in Figure~\ref{fig:system_locator}.
-First the container 
+For example, given a send request, the Container Locator will query Mesos to figure out if the 
+sender/receiver containers are intra-VM or inter-VM. 
+For intra-VM containers, the Container Locator will raise a flag to notify the virtualized NIC to
+send the data via shared memory.
+For inter-VM containers, the Container Locator will then quire if the two containers are intra-host
+or inter-host.
+If the containers are inter-VM but intra-host, Container Locator will tell the virtualized NIC to send
+the data via fast data pass across VMs in the same machine, such as NetVM\cite{} or netmaps\cite{}.
+Or if the containers are inter-host, RDMA would be the most efficient way to perform the data transfer.
+
+\tianlong{There should be some design decisions to support the above logic in design section.}
 
 %We are going to add a logic module called Container Locator inside the application's
 %library for communication. For example, the  
 
-
-
 \subsection{Virtualized NIC}
-This virtualized NIC acts as a transparent layer between the application and the underlying network structure, intelligently and dynamically choosing the best communication mechanism, while maintaining compatibility with currently written applications.
+The virtualized NIC acts as a transparent layer between the application and the underlying network structure, dynamically choosing the best communication mechanism, while maintaining compatibility with currently written applications.
 
 The decision of which mechanism to chose is based on the hardware capabilities of the hosts and the physical placement of the containers, while aiming for minimal CPU overhead and high throughput. This decision and switching between communication mechanism is done completely transparent from application.
 
