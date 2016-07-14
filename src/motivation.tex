@@ -113,6 +113,10 @@ CPUs are used to performance the encapsulations, decapsulations and packet match
 
 \subsection{Opportunities for better networking}
 
+\vyas{I would rename this to "Bottlenecks in Container Network Performance"  --
+and perhaps even worth elevating to a separate section}
+
+
 The key to achieve a high performance and low overhead overlay network
 for containers is bypassing the performance bottlenecks, including
 bridges, software routers and host OS kernel, on data-plane. Given that
@@ -171,6 +175,8 @@ and low overhead network if we can enable shared-memory and RDMA
 in the data-plane of container overlay networks.
 
 \subsection{Challenges}
+
+\vyas{this may belong better in the next section in terms of talking about the requirements/challenges etc}
 
 (1) Using standard APIs, transparent to containers;
 
