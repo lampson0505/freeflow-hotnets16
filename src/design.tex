@@ -2,8 +2,8 @@
 
 \begin{figure}[t!] 
      \centering 
-     \includegraphics[width=3.2in]{figures/system-arch} 
-    \caption{\label{fig:sysarch} The overall system architecture of~\sysname.} 
+     \includegraphics[width=3.2in]{figures/system-arch.png} 
+    \caption{\label{fig:sysarch} The overall system architecture of~\sysname. Gray boxes are building blocks of~\sysname.} 
 \end{figure} 
 
 In this section, ...
@@ -50,7 +50,12 @@ components.
 \subsection{The architecture of FreeFlow}
 
 Figure~\ref{fig:sysarch} shows the architecture and design choices on each 
-components of~\sysname.
+components of~\sysname. Network orchestrator is the centralized control-plane
+of~\sysname. The local network agent running in each host coordinates
+multiple data-plane options according to the information and configurations feed
+from the network orchestrator. We choose standard RDMA programming interface --
+Verbs API -- as the programming API in the whole solution. Next, we will explains
+our design decisions in details. 
 
 \para{Centralized control-plane:}
 
