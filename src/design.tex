@@ -18,7 +18,7 @@ to communicate with portability, isolation and high performance at the same time
 This solution has three main components: control-plane, data-plane and programing
 abstraction. 
 
-A flexible control-plane is a guarantee of portability and isolation. 
+A flexible control-plane is a must for portability and isolation. 
 It should permit a container to register its own IP addresses in the network
 from any host, and also should automatically configure and update the routing 
 to each container. Different from existing overlay network solutions of 
@@ -87,3 +87,38 @@ NIC, \sysname provides a virtual RDMA NIC on each container. One virtual NIC
 can talk with the process of its container with RDMA protocols and hide
 the decisions of local network agent and the actual data-plane mechanism
 that is used. 
+
+\subsection{Working flows of FreeFlow}
+
+To support the standard RDMA Verbs API used by containers and realize
+communications with the best available data-plane mechanism, \sysname needs
+to present a RDMA environment to containers and efficiently supports 
+the RDMA semantics with multiple data-plane mechanisms. While RDMA has
+four interfaces (e.g. Write, Read, Send and Receive), we use Write as an example
+to show how \sysname supports this operation with shared-memory and real RDMA.
+
+Figure XXX (a) shows the working flow of a standard RDMA write from containers'
+points of view when they use Verbs API. There are generally three steps in a 
+Write operation. 
+Step 1: the sender first creates a memory block, puts data in it and passes 
+the pointer of this memory block to its NIC;
+Step 2: the sender notify its NIC to write the memory block to the receiver's IP.
+Step 3: the receiver's NIC will get data from the sender's NIC and copy the 
+data into a memory block and pass the pointer of the memory block to the 
+receiver.
+
+In \sysname, both the sender and receiver containers have a virtual RDMA NIC.
+In Step 1, the sender creates a shared-memory block and write data, and then 
+the local network agent will get the pointer of this shared-memory block after the sender passes it to its virtual NIC; In Step 2, after receiving the IP of 
+the receiver, the local network agent will check whether the receiver is on
+the same host of the sender. If the answer is "Yes", the local network agent will
+directly leverage the receiver's virtual NIC to notify it that a memory block 
+from RDMA is ready to read with the pointer of the shared-memory block. 
+Otherwise, the sender's local network agent will perform an actual RDMA write
+with the receiver's local network agent, and the latter will put the received data into a shared-memory and pass it to the receiver container via its virtual NIC.
+
+
+
+
+
+
