@@ -6,7 +6,10 @@
     \caption{\label{fig:sysarch} The overall system architecture of~\sysname. Gray boxes are building blocks of~\sysname.} 
 \end{figure} 
 
-In this section, ...
+This section presents the high-level design of \sysname. We introduce
+the requirements and concerns in the designs of control-plane, data-plane
+and programming interface, and explain how \sysname makes the design choices
+and the reason behind them.
 
 \subsection{Overview}
 
@@ -57,9 +60,30 @@ from the network orchestrator. We choose standard RDMA programming interface --
 Verbs API -- as the programming API in the whole solution. Next, we will explains
 our design decisions in details. 
 
-\para{Centralized control-plane:}
+\para{Centralized control-plane:} \sysname inherently needs a (conceptually)
+centralized control-plane because the IP assignment, routing configuration and 
+data-plane mechanism decisions are all computed from the global status of the
+container cluster. The network orchestrator of~\sysname maintains three kinds
+of global information: the location of each container, the assigned IP of each
+container and the capabilities of host NICs.
 
-\para{RDMA/Shared-Memory based Data-plane:}
+\para{Integrated Data-plane:} \sysname's local network agent on each host 
+obtains the container location information from the network orchestrator. 
+It decides to use shared-memory to communicate if two containers are on the
+same host, otherwise, it will conduct the communicate going through 
+the NIC of its host. Depending on the capability of the NIC, the traffic 
+between two hosts can be delivered via RDMA, DPDK or TCP/IP.
 
-\para{Verbs based programming abstraction:}
-
+\para{RDMA-Verbs based programming abstraction:} We decide to adopt 
+RDMA-Verbs API for three reasons. First, in data centers, most of
+the applications that have strong desires to high networking performance
+are written or are migrating to RDMA based networking abstraction, so that
+\sysname can naturally support these applications; Next, Verbs API is a 
+widely accepted and used industrial standard; Finally, Verbs API is proven
+to be a general and low-level programing interface, and there are already
+adaptation layer libraries available to support TCP/IP~\cite{?}
+and MPI~\cite{?} on top of Verbs. Given that Verbs API directly talks to
+NIC, \sysname provides a virtual RDMA NIC on each container. One virtual NIC
+can talk with the process of its container with RDMA protocols and hide
+the decisions of local network agent and the actual data-plane mechanism
+that is used. 
