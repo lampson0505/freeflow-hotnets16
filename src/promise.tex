@@ -1,20 +1,20 @@
 \section{System to Build} \label{sec:promise}
 
 %P1 introduce the two components we want to build
-\Name's main components will include a container locator and a virtualized NIC.
+\sysname's main components will include a container locator and a virtualized NIC.
 The container locator can figure out where the location of the container is and
 decide the most efficient way for two containers to talk with each other (e.g. 
 via shared memory, rdma or dpdk).
 And the virtualized NIC emulates the necessary underlying resource structures 
 (e.g., send queue or receive queue of the NIC). In this way, the application will
 be using the standardized APIs without be aware of the actual communication
-mechanisms. The architecture of \Name is shown in Figure~\ref{fig:system_modules}.
+mechanisms. The architecture of \sysname is shown in Figure~\ref{fig:system_modules}.
 
      \begin{figure}[ht]
      \centering 
      \includegraphics[width=0.5\textwidth]{figures/system/system_modules.pdf}      
      \label{fig:system_modules}
-     \caption{The system architecture of \Name.} 
+     \caption{The system architecture of \sysname.} 
      \end{figure}
 
 \subsection{Container Locator}
@@ -29,7 +29,7 @@ the Container Locator will be inside library \texttt{libibverbs}.
      \caption{The logic flow of Container Locator.} 
      \end{figure}
 
-The Container Locator send queries to Mesos and the cloud's Fabric Controller to locate
+The Container Locator send queries to Mesos (resource manager) and the cloud's Fabric Controller to locate
 the sender/receiver containers and decide the most efficient way they talk with each other.
 The logic flow of this process is as shown in Figure~\ref{fig:system_locator}.
 First the container 
