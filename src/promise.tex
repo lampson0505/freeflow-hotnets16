@@ -39,10 +39,10 @@ The logic flow of this process is as shown in Figure~\ref{fig:system_locator}.
 
 
 \subsection{Virtualized NIC}
+This virtualized NIC acts as a transparent layer between the application and the underlying network structure, intelligently and dynamically choosing the best communication mechanism, while maintaining compatibility with currently written applications.
 
+The decision of which mechanism to chose is based on the hardware capabilities of the hosts and the physical placement of the containers, while aiming for minimal CPU overhead and high throughput. This decision and switching between communication mechanism is done completely transparent from application.
 
-%\begin{itemize}
-%  \item Container Locator:
-%  \item Virtualized NIC:
-%\end{itemize}
+For intra-host communication, virtualized NIC will use shared memory communication inducing minimal pressure on the CPU while reaching high throughput (~ memory bandwidth). For inter-host communication, the virtualized NIC will prioritize RDMA communication when supported by the underlying hardware. Otherwise, it will use TCP/IP communication. 
+
 
