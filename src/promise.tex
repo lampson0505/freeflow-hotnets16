@@ -1,19 +1,91 @@
 \section{System to Build} \label{sec:promise}
 
-To support the standard RDMA Verbs API used by containers and realize
-communications with the best available data-plane mechanism, \sysname needs
-to present a RDMA environment to containers and efficiently supports 
-the RDMA semantics with multiple data-plane mechanisms. While RDMA has
-four interfaces (e.g. Write, Read, Send and Receive), we use Write as an example
-to show how \sysname supports this operation with shared-memory and real RDMA.
+     \begin{figure}[th]
+     \centering 
+     \begin{subfigure}
+     \centering 
+     \includegraphics[width=0.45\textwidth]{figures/system/sys_rdma_steps.pdf}
+     %\caption{\label{fig:fig1}}
+     %\caption{steps} 
+     \end{subfigure}
+           
+     \begin{subfigure}
+     \centering 
+     \includegraphics[width=0.45\textwidth]{figures/system/sys_rdma_code.pdf}      
+     %\caption{\label{fig:fig2}}
+     \end{subfigure}
+     \label{fig:sys_rdma_steps_code}
+     \caption{The steps and pseudo code of applications executing a RDMA Write.} 
+     \end{figure}
+
+% P1
+In this section, we show the workflow of \sysname and how to 
+implement the standard RDMA Verbs API with best available data-plane mechanism.
+To achieve good portability, the container application that uses the RDMA Verbs API should not be aware of
+underlying data-plane mechanism.
+Here we take RDMA Write, two basic RDMA operations (read and write), 
+to show how \sysname implement this operation with best data-plane mechanism available (shared-memory or real RDMA).
+
+Figure~\ref{fig:sys_rdma_steps_code} shows the steps and pseudo code of 
+a standard RDMA Write from containers' points of view when they use Verbs API. 
+There are generally three steps in a Write operation:
+\begin{itemize}
+  \item Step 1: the sender create a buffer for send data (buffer1), and the receiver create a buffer for receive data (buffer2). 
+Both sender and receiver register the address of the buffer with its NIC;
+  \item Step 2: the receiver pass the address of buffer2 to the sender (stored in R-addr);
+  \item Step 3: the sender will post the send request to the NIC along with the address of buffer1 and buffer2. The sender's
+  and receiver's NIC will directly copy the data in buffer1 to buffer2.
+\end{itemize}
+Next we show how \sysname implement the RDMA Write operation in inter-host and intra-host settings.
+
+\textbf{Real RDMA in inter-host setting:} First we show 
+how \sysname implemented RDMA Write with Real RDMA in inter-host setting,
+illustrated in Figure~\ref{fig:sys_rdma_rdma}. 
+In \sysname, both the sender and receiver containers have a virtual NIC (vNIC).
+Different from standard RDMA Write, the applications in the container post
+the send request to the virtualized network structures (e.g., RDMA Send Queue)
+in the vNIC, rather than the real NIC.
+The vNIC has the smartness to find out the best dataplane mechanism (by query
+Mesos or Fabric Controller).
+For example, in inter-host setting, RDMA is probably the best mechanism. Then
+the vNIC will pass down the send request to the real NIC for RDMA transfer.
 
      \begin{figure}[ht]
      \centering 
-%     \includegraphics[width=0.45\textwidth]{figures/system/sys_rdma_steps.pdf}
-     \includegraphics[width=0.45\textwidth]{figures/system/sys_rdma_code.pdf}      
-     \label{fig:sys_rdma_code}
-     \caption{The psudo code of an application execute RDMA write.} 
+     \includegraphics[width=0.45\textwidth]{figures/system/sys_rdma_rdma.pdf}      
+     \label{fig:sys_rdma_rdma}
+     \caption{How \sysname implemented RDMA write in inter-host setting.} 
      \end{figure}
+
+\textbf{Shared memory in intra-host setting:} Figure~\ref{fig:sys_rdma_shm} shows 
+how \sysname implemented RDMA Write with Real RDMA in inter-host setting.
+Suppose the vNIC can find out the best dataplane mechanism for inter-host setting
+is shared-memory, for example, ask the local network agent to check whether the 
+receiver is on the same host of the sender.
+ In step 1, both sender and receiver will create a shared memory object (equal 
+to buffer in inter-host setting). The shared memory objects are inside the namespace
+shared among containers and the host agent on the same physical machine.
+In step 2, the receiver will pass the address of shared memory obj2 to the sender.
+Then in step 3, the sender can directly write to the shared memory obj2 of the
+receiver, and notify the receiver when the write is finished.
+
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.45\textwidth]{figures/system/sys_rdma_shm.pdf}      
+     \label{fig:sys_rdma_shm}
+     \caption{How \sysname implemented RDMA write in inter-host setting.} 
+     \end{figure}
+
+%%% commented 
+\iffalse
+To support the standard RDMA Verbs API used by containers and realize
+communications with the best available data-plane mechanism, \sysname needs
+to present a RDMA environment to containers and efficiently supports 
+the RDMA semantics with multiple data-plane mechanisms. 
+While RDMA has four interfaces (e.g. Write, Read, Send and Receive), we use Write as an example
+to show how \sysname supports this operation with shared-memory and real RDMA.
+
+
 
 Figure XXX (a) shows the working flow of a standard RDMA write from containers'
 points of view when they use Verbs API. There are generally three steps in a 
@@ -49,10 +121,6 @@ with the receiver's local network agent, and the latter will put the received da
      \caption{How \sysname implemented RDMA write with shared memory in intra-host setting.} 
      \end{figure}
      
-
-
-\iffalse
-
      \begin{figure}[ht]
      \centering 
      \begin{subfigure}
