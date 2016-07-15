@@ -72,7 +72,9 @@ centralized control-plane because the IP assignment, routing configuration and
 data-plane mechanism decisions are all computed from the global states of the
 container cluster. The network orchestrator of~\sysname maintains three kinds
 of global information: the location of each container, the assigned IP of each
-container and the capabilities of host NICs. Container IPs can be assigned 
+container and the capabilities of host NICs. If containers are running on top of
+VMs, the network orchestrator also needs to know which physical machine each VM 
+is located. Container IPs can be assigned 
 automatically by network agents via DHCP, or manually assigned by containers' 
 configurations. The traffic from a sender
 to a receiver is routed by the sender's network agent directly to 
