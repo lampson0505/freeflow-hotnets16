@@ -1,9 +1,8 @@
 \section{Background and Motivation}
 \label{sec:motivation}
 
-In this section, we ...
+\para{Background:} 
 
-\subsection{Containerized applications}
 
 \begin{figure*}[h]  
 	\centering   
@@ -11,55 +10,40 @@ In this section, we ...
 	\caption{\label{fig:deploy-cases} Representative running environments of containers.}   
 \end{figure*}
 
-%\begin{table} [t!]
-%\centering
-%\small
-%\begin{tabular}{ c || c | c | c | c }
-%  \hline
-%  Constraint & Case (a) & Case (b) & Case (c) & Case (d) \\ \hline \hline
-%  N/A & SharedMem & RDMA & SharedMem & RDMA \\ \hline
-%  w/o trust & TCP/IP & TCP/IP & TCP/IP & TCP/IP \\ \hline
-%  w/o RDMA NIC & SharedMem & TCP/IP & SharedMem & TCP/IP \\ \hline
-%\end{tabular}
-%\caption{\label{tab:best-network} The suggested network solution under %different running environments in Figure~\ref{fig:deploy-cases} and constraints.}
-%\normalsize
-%\end{table}
+Most containerized applications are usually composed of multiple containers. For
+example, each master and slave node in Hadoop is an individual container; A web
+service can include layers, such as load balancer, web server, in-memory cache
+and backend database, and each layer can be a distributed system with multiple
+containerized nodes. These containers are usually deployed into a multi-host
+server cluster, and the deployment is usually controlled by a cluster
+orchestrator, e.g. Mesos~\cite{xxx}.  Such architecture makes it easier to
+upgrade the nodes or mitigate failures, since a stopped container can be quickly
+replaced by a new one on the same or a different host.  Working as a single
+application, containers need to exchange data, and the network performance has a
+significant impact on the overall application performance~\cite{coflow-etc.}
 
-Nowadays, a containerized application is usually composed by multiple containers. For example, each master and slave node in Hadoop is an individual container; A web service can include layers, such as load balancer, web server,
-in-memory cache and backend database, and each layer can be a distributed 
-system with multiple containerized nodes. 
-These containers are usually 
-deployed into a multi-host server cluster, and the deployment is usually 
-controlled by a cluster orchestrator, e.g. Mesos~\cite{?}. 
-Such architecture makes it easier
-to upgrade the nodes or mitigate failures, since a stopped container can be quickly replaced by a new one on the same or another host.
+Depending on whether containers run on bare-metal hosts or VM hosts,
+Figure~\ref{fig:deploy-cases} illustrates the four cases any container
+networking solution must handle. For maximum portability, containers today often
+use ovelay networks as shown in Figure~\ref{fig:overlay}. A number of software
+solutions are available to provide this overlay fabric, including
+Weave~\cite{wave} and Calico~\cite{calico}. The host (i.e. the server or the VM)
+runs software router. The router connect to the NIC of the host. It also
+connects with the virtual interfaces of the containers on the host via a
+software bridge. It performs appropriate tunneling (encapsulation and
+decapsulation) to move traffic between the physical network and the overlay
+fabric. The router uses standard networking protocols like BGP to connect with
+software routers on other hosts. Containers send and receive IP packets via this
+overlay, and hence are agnostic to location of other containers they are
+communicating with.
 
-Working as a single application, containers need to exchange data, and the network performance has a huge impact on the overall application performance.
-Depending on whether 
-containers run on bare-metal hosts or VM hosts, Figure~\ref{fig:deploy-cases}
-illustrates four representative cases for a container networking solutions
-to handle. 
-%As shown later in this section, one networking solution has 
-%different efficiency and feasibility in different cases. 
-In this paper, 
-we focus on the cases (a) and (b) in Figure~\ref{fig:deploy-cases} and discuss how to support the other two cases in the future.
+The CPU overhead of processing packets in the software bridge, as well as in the
+software router (for off-host communication) is the primary bottleneck to the
+performance of this overlay.
 
-%We set up two iPerf containers running in server and client roles respectively and benchmark the network bandwidth between them when they use three different networking modes:
-%\vyas{2.1 has to be about background and  the status quo. not about your experiment. i would make 2.2 your experiment setup details etc}
-%\harry{Sorry, I copied and pasted some text from intro. Have not cleaned the Section yet.}
-
-%\begin{itemize}
-%	\item {\em Host}, in which one container binds an interface
-%and a port on the host and use the host's IP to communicate, like an ordinary
-%process.
-%	\item {\em Bridge}, in which all containers on the same host are connected to a common network bridge in OS kernel. It is only used for
-%	intra-host communications.  
-%	\item {\em Overlay}, in which each host runs a software router which
-%	connects all containers on the host via bridge network. An overlay 
-%	network crossing multiple hosts is constructed by the software routers
-%	to achieve a uniform IP assignment and traffic routing on the overlay.
-%\end{itemize}
-
+%% In this paper, we focus on the cases (a) and (b) in
+%% Figure~\ref{fig:deploy-cases} and discuss how to support the other two cases in
+%% the future.
 
 \subsection{Existing container overlay networks}
 
@@ -73,34 +57,6 @@ we focus on the cases (a) and (b) in Figure~\ref{fig:deploy-cases} and discuss h
 	\includegraphics[width=0.8\linewidth]{figures/overlay.pdf}   
 	\caption{\label{fig:overlay} The design of existing container overlay networks (Weave).}   
 \end{figure}   
-
-As mentioned in \S\ref{sec:introduction}, {\em Overlay} networking mode 
-is preferred to keep the portability and independence of containers.
-Despite there are multiple available container overlay networking solutions
-in the state of art, e.g. Docker Overlay Network, Weave, Calico, etc., 
-their basic idea for offering the connectivity to the containers is similar.
-Figure~\ref{fig:overlay} shows the architecture of an overlay container network.
-Each hosts runs a software router that connects to one NIC of the host. 
-Leveraging the connectivity provided by the inter-host network, the routers
-on different hosts can exchange information and speak standard routing protocols.
-Inside each host, a virtual interface (veth0) is created in each container and is connected to a virtual interface of the software router in the same host via a software network bridge. The virtual interface of a container is assigned
-an overlay IP (e.g. 1.1.1.1 to Container-1) and the host of this overlay IP
-is propagated among the software routers in the cluster. Therefore, containers
-can send and receive IP packets merely with their overlay IPs, agnostic to
-the real location of the other side. For instance, when a IP packet from
-Container-1 to Container-3 is send to Router-1, the latter knows 3.3.3.3
-(Container-3's overlay IP) is on Host-2, so that Router-1 will encapsulate 
-an IP header with destination IP 192.168.1.2 (Host-2's IP) on top of the packet
-and send it to Host-2. Host-2 decapsulates the packet after receiving it
-and deliver it to Container-3.  
-
-There are two bottlenecks which significantly limit the performance
-of current container overlay networks. The first one is the network bridge
-connecting containers and software routers. It is a software implementation
-of a subset of the ANSI/IEEE 802.1d standard~\cite{?} which forwards packets
-according to Ethernet addresses. Tremendous CPU resource is spent on matching
-addresses and data copying. The second bottleneck is the software router, since
-CPUs are used to performance the encapsulations, decapsulations and packet matching/forwarding.
 
 
 \subsection{Opportunities for better networking}
