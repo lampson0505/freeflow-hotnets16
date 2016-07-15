@@ -2,14 +2,14 @@
 
 \begin{figure}[t!] 
      \centering 
-     \includegraphics[width=3.2in]{figures/system-arch.pdf} 
+     \includegraphics[width=3.5in]{figures/system-arch.pdf} 
     \caption{\label{fig:sysarch} The overall system architecture of~\sysname. Gray boxes are building blocks of~\sysname.} 
 \end{figure} 
 
 This section presents the high-level design of \sysname. We introduce
 the requirements and concerns in the designs of control-plane, data-plane
-and programming interface, and explain how \sysname makes the design choices
-and the reason behind them.
+and programming interface, and explain what design choices \sysname makes 
+and what the reasons are behind these design choices.
 
 \subsection{Overview}
 
@@ -18,14 +18,17 @@ to communicate with portability, isolation and high performance at the same time
 This solution has three main components: control-plane, data-plane and programing
 abstraction. 
 
+A control-plane handles IP address assignment, routing and keeping global states.
 A flexible control-plane is a must for portability and isolation. 
-It should permit a container to register its own IP addresses in the network
+It should permit a container to register its own IP address in the network
 from any host, and also should automatically configure and update the routing 
 to each container. Different from existing overlay network solutions of 
 containers, we also require the control-plane to be able to select 
-data-plane protocols in real-time according to multiple factors, 
-e.g. container locations, hardware capabilities, etc..
+data-plane mechanisms (e.g. shared-memory, RDMA, TCP/IP, etc.) 
+in real-time according to multiple factors, 
+such as container locations, hardware capabilities and so on.
 
+A data-plane delivers data from senders to receivers.
 Data-plane should always promise the best network performance between 
 containers. From measurements (Figure~\ref{XXX}), 
 we see that shared-memory has the highest
@@ -33,19 +36,20 @@ bandwidth, lowest latency, smallest NIC load and modest CPU load.
 Therefore, shared-memory is favorable to be used as the data-plane 
 mechanism between two containers on the same host. 
 The data-plane for inter-host communication
-depends on the hardware capability. RDMA is preferred to TCP/IP if the NICs
-on the hosts have the support.
+depends on the hardware capability. For example, RDMA is preferred to TCP/IP 
+if the NICs on the hosts have the support.
 
-A network programming abstraction defines how communication is performed.
-People have designed multiple network abstractions used in different scenarios.
+A network programming abstraction defines how communication 
+performed at the end point side.
 For example, the most popular network abstraction for TCP/IP is Socket~\cite{?},
 Verbs~\cite{?} is widely accepted for RDMA, and MPI~\cite{?} is a standard for
-message-passing in distributed memory and parallel computers. We require that
-the network programming abstraction must at least have two
+message-passing in distributed memory and parallel computers. 
+We require that
+the network programming abstraction of~\sysname must at least have two
 properties. First, it facilitates containers to access the network and 
 transparently utilize the data-plane mechanisms, and second, it is general 
 enough to support existing programming interfaces on top of it for backward 
-compatibility.
+compatibility. 
 
 The design of~\sysname fully considers the requirements from all these three
 components.
@@ -55,14 +59,15 @@ components.
 Figure~\ref{fig:sysarch} shows the architecture and design choices on each 
 components of~\sysname. Network orchestrator is the centralized control-plane
 of~\sysname. The local network agent running in each host coordinates
-multiple data-plane options according to the information and configurations feed
+multiple data-plane mechanisms according to the information and 
+configurations feed
 from the network orchestrator. We choose standard RDMA programming interface --
 Verbs API -- as the programming API in the whole solution. Next, we will explains
 our design decisions in details. 
 
 \para{Centralized control-plane:} \sysname inherently needs a (conceptually)
 centralized control-plane because the IP assignment, routing configuration and 
-data-plane mechanism decisions are all computed from the global status of the
+data-plane mechanism decisions are all computed from the global states of the
 container cluster. The network orchestrator of~\sysname maintains three kinds
 of global information: the location of each container, the assigned IP of each
 container and the capabilities of host NICs.
