@@ -14,11 +14,10 @@ Operating systems emerged, and offered a measure of isolation and portability.
 As users demanded more portability and better isolation between applications,
 operating systems became more sophisticated, and deep layering became the norm.
 The modern TCP/IP stack is a classic example of this trend. The deep layering
-significantly improves the application portability (the same code can be reused
+significantly improves the application's portability (the same code can be reused
 on many systems and on many types of physical networks), and offers a certain
 degree of isolation applications (via mechanisms like rate control or firewalls
 implemented in the kernel). 
-
 However, this very same layering makes the modern TCP/IP stack greatly
 inefficient~\cite{dcqcn,luigipapers}. 
 
@@ -34,7 +33,7 @@ DPDK~{xxx} completely bypass the TCP/IP stack improve performance, but reduce
 portability (the code can only run on certain hardware) and offer less isolation
 (the application is more exposed to hardware vagaries, and kernel cannot provide
 protections like rate limiting and firewalls). In case of virtualization,
-techniques like SRiOV~\cite{xxx} and NetVM~\cite{xxx} pierce through the
+techniques like SRiOV~\cite{xxx} and NetVM~\cite{netvm} pierce through the
 isolation boundary enforced by the hypervisor to offer better performance. 
 
 The latest step in this trend is called containerization.  By wrapping a process
@@ -83,7 +82,7 @@ In addtion, we also consider a third mode, in which containers comunicate via
 shared memory. This mode requires special configuration, and is the leat
 
 Figure~\ref{fig:three_modes} shows the median network bandwidth and latency
-between two containers with the two networking modes. The error bars show SIQR.
+between two containers in the two networking modes. The error bars show SIQR.
 
 For contrast, the third bar shows the most performant way for two applications
 on the same physical server: IPC communication via shared memory.  Note that
@@ -102,7 +101,7 @@ clearly illustrates the performance cost of isolation and portability.
 As the popularity of container networking grows, this inefficiency must be
 addressed. On one hand, the low throughput and high latency directly impacts
 the overall performance of large scale distributed systems, such as big data
-analytics~\cite{choudhury-paper}, key-value store~\cite{farm}, machine learning
+analytics~\cite{choudhury-paper}, key-value store~\cite{farm}, machine learning,
 etc.  On the other hand, it forces the applications to reserve substantial CPU
 resources to merely perform traffic processing, which significantly raise the
 cost of running the applications.
@@ -114,10 +113,10 @@ SR-IOV~\cite{sriov} and NetVM~\cite{netvm}.
 Unfortunately, these ideas cannot be directly applied to the container world.
 SR-IOV typically scales to tens of VMs per server. In typical deployments, there
 are hundreds of containers per server. The cost of supporting so many containers
-in NIC hardware will be prohibitive. 
+in the NIC hardware will be prohibitive. 
 
 NetVM~\cite{netvm} cannot be used directly with containers, since it destroys
-portability -- it works only when the two VMs are on the same servers.
+portability -- it works only when two VMs are on the same server.
 Developers prize containers especially for their portability: indeed, Docker's
 main selling point is that a containerized application that runs on developer's
 desktop will run in the cloud without any changes! 
