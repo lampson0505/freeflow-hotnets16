@@ -2,125 +2,135 @@
 
 \begin{figure}[t!] 
      \centering 
-     \includegraphics[width=3.5in]{figures/system-arch.pdf} 
+     \includegraphics[width=3.2in]{figures/system-arch.pdf} 
     \caption{\label{fig:sysarch} The overall system architecture of~\sysname. Gray boxes are building blocks of~\sysname.} 
 \end{figure} 
 
 This section presents the high-level design of \sysname. We introduce
 the requirements and concerns in the designs of control-plane, data-plane
-and programming interface, and explain what design choices \sysname makes 
+and network access layer, and explain what design choices \sysname makes 
 and what the reasons are behind these design choices.
 
 \subsection{Overview}
 
-Our goal is to design a completed network solution which can enable containers
+Our goal is to design a complete network solution which can enable containers
 to communicate with portability, isolation and high performance at the same time.
-This solution has three main components: control-plane, data-plane and programing
-abstraction. 
+Basically, this solution has three major components: control-plane, data-plane 
+and networking abstraction. 
 
-A control-plane handles IP address assignment, routing and keeping global states.
+A \textbf{control-plane} handles IP address assignment, routing and manages global states of a container network.
 A flexible control-plane is a must for portability and isolation. 
 It should permit a container to register its own IP address in the network
-from any host, and also should automatically configure and update the routing 
-to each container. Different from existing overlay network solutions of 
-containers, we also require the control-plane to be able to select 
-data-plane mechanisms (e.g. shared-memory, RDMA, TCP/IP, etc.) 
-in real-time according to multiple factors, 
-such as container locations, hardware capabilities and so on.
+from any host; It also should automatically configure and update the routing 
+to each container. One unique requirement for \sysname's control-plane,
+compared with existing container networking solutions, is to be able to 
+select data-plane (e.g. shared-memory, RDMA, TCP/IP, etc.) in real-time
+according to multiple factors, such as container locations, hardware 
+capabilities and so on. 
+There are several routing schemes that are used by existing
+container networking solutions, and they are optional for \sysname. 
+For example, Calico and WeaveNet build distributed routing scheme on top of 
+distributed routing protocols (e.g. BGP), while Docker default overlay network
+and DaoliNet use centralized routing planes based on OpenFlow and OVS.
 
-A data-plane delivers data from senders to receivers.
-Data-plane should always promise the best network performance between 
-containers. From measurements (Figure~\ref{XXX}), 
-we see that shared-memory has the highest
-bandwidth, lowest latency, smallest NIC load and modest CPU load. 
-Therefore, shared-memory is favorable to be used as the data-plane 
-mechanism between two containers on the same host. 
-The data-plane for inter-host communication
-depends on the hardware capability. For example, RDMA is preferred to TCP/IP 
-if the NICs on the hosts have the support.
+A \textbf{data-plane} delivers data from sender containers to receiver 
+containers. \sysname's data-plane should always achieve a good trade-off
+between isolation, portability and performance. 
+As introduced in \S\ref{sec:motivation}, there are many data-plane mechanisms
+for two containers, such as shared-memory (intro-host), TCP/IP, DPDK, RDMA, etc..
+Different mechanisms have different properties on portability, isolation and 
+performance. Therefore, we need to decide is to choose a single mechanism, or
+integrate multiple mechanisms together.
 
-A network programming abstraction defines how communication 
-performed at the end point side.
-For example, the most popular network abstraction for TCP/IP is Socket~\cite{?},
-Verbs~\cite{?} is widely accepted for RDMA, and MPI~\cite{?} is a standard for
-message-passing in distributed memory and parallel computers. 
-We require that
-the network programming abstraction of~\sysname must at least have two
-properties. First, it facilitates containers to access the network and 
-transparently utilize the data-plane mechanisms, and second, it is general 
-enough to support existing programming interfaces on top of it for backward 
-compatibility. 
+A \textbf{network abstraction} defines how containers access the networks
+provided by \sysname. Application inside containers are using existing 
+network APIs, e.g. Socket for TCP/IP, Verbs for RDMA, MPI for parallel computing, etc., so \sysname must support all of them seamlessly for 
+backward compatibility. On the other hand, the actual data-plane mechanism
+should be hidden behind the network abstraction layer and transparent to 
+application code. There are two options to realize a network abstraction.
+The first option is to modify the implementation libraries of existing
+network APIs. When applications calls the APIs, \sysname intercepts
+the function calls and performance it own logic of networking. 
+The second option is to leave the libraries unchanged and manage the networking
+behaviors on the interfaces of containers.
 
 The design of~\sysname fully considers the requirements from all these three
 components.
 
-\subsection{The architecture of FreeFlow}
+\subsection{Design choices of FreeFlow}
 
 Figure~\ref{fig:sysarch} shows the architecture and design choices on each 
-components of~\sysname. Network orchestrator is the centralized control-plane
-of~\sysname. The local network agent running in each host coordinates
-multiple data-plane mechanisms according to the information and 
-configurations feed
-from the network orchestrator. We choose standard RDMA programming interface --
-Verbs API -- as the programming API in the whole solution. Next, we will explains
-our design decisions in details. 
+components of~\sysname. Network orchestrator and the network agents compose 
+the centralized control-plane of~\sysname. The network agent running in each 
+host coordinates multiple data-plane mechanisms according to the information and 
+configurations feed from the network orchestrator. 
+We choose to provide a virtual NIC on each container, which is indeed one part of network agent on the host, to induce the communications among containers 
+into \sysname. We present the design choices as following:
 
 \para{Centralized control-plane:} \sysname inherently needs a (conceptually)
 centralized control-plane because the IP assignment, routing configuration and 
 data-plane mechanism decisions are all computed from the global states of the
 container cluster. The network orchestrator of~\sysname maintains three kinds
 of global information: the location of each container, the assigned IP of each
-container and the capabilities of host NICs.
+container and the capabilities of host NICs. If containers are running on top of
+VMs, the network orchestrator also needs to know which physical machine each VM 
+is located. Container IPs can be assigned 
+automatically by network agents via DHCP, or manually assigned by containers' 
+configurations. The traffic from a sender
+to a receiver is routed by the sender's network agent directly to 
+the receiver's network agent, assuming the connectivity between
+any pair of host is always maintained by the host network. 
 
-\para{Integrated Data-plane:} \sysname's local network agent on each host 
+\para{Integrated Data-plane:} \sysname integrates multiple data-plane 
+mechanisms. The network agent on each host 
 obtains the container location information from the network orchestrator. 
 It decides to use shared-memory to communicate if two containers are on the
 same host, otherwise, it will conduct the communicate going through 
 the NIC of its host. Depending on the capability of the NIC, the traffic 
 between two hosts can be delivered via RDMA, DPDK or TCP/IP.
 
-\para{RDMA-Verbs based programming abstraction:} We decide to adopt 
-RDMA-Verbs API for three reasons. First, in data centers, most of
-the applications that have strong desires to high networking performance
-are written or are migrating to RDMA based networking abstraction, so that
-\sysname can naturally support these applications; Next, Verbs API is a 
-widely accepted and used industrial standard; Finally, Verbs API is proven
-to be a general and low-level programing interface, and there are already
-adaptation layer libraries available to support TCP/IP~\cite{?}
-and MPI~\cite{?} on top of Verbs. Given that Verbs API directly talks to
-NIC, \sysname provides a virtual RDMA NIC on each container. One virtual NIC
-can talk with the process of its container with RDMA protocols and hide
-the decisions of local network agent and the actual data-plane mechanism
-that is used. 
+\para{Network abstraction with virtual NICs:} \sysname chooses not to change 
+any networking APIs or libraries used by applications for the best
+compatibility and flexibility in programming. Instead, \sysname intercepts
+the communications between containers via the virtual NIC, or vNIC, it 
+inserts into each container. One vNIC mimics a real NIC from a container's
+point of view. For containers using TCP/IP, it hands over all outgoing packets
+to the network agent on the same host; For containers that use kernel bypassing
+techniques, e.g. RDMA or DPDK, etc., a vNIC also hands over all configurations
+it gets directly from applications to the network agent on the same host. 
+The latter will decide how to handle the configurations and deliver data
+properly.
 
-\subsection{Working flows of FreeFlow}
+In next section, we will discussion about our implementation plan of \sysname.
 
-To support the standard RDMA Verbs API used by containers and realize
-communications with the best available data-plane mechanism, \sysname needs
-to present a RDMA environment to containers and efficiently supports 
-the RDMA semantics with multiple data-plane mechanisms. While RDMA has
-four interfaces (e.g. Write, Read, Send and Receive), we use Write as an example
-to show how \sysname supports this operation with shared-memory and real RDMA.
+%\subsection{Working flows of FreeFlow}
 
-Figure XXX (a) shows the working flow of a standard RDMA write from containers'
-points of view when they use Verbs API. There are generally three steps in a 
-Write operation. 
-Step 1: the sender first creates a memory block, puts data in it and passes 
-the pointer of this memory block to its NIC;
-Step 2: the sender notify its NIC to write the memory block to the receiver's IP.
-Step 3: the receiver's NIC will get data from the sender's NIC and copy the 
-data into a memory block and pass the pointer of the memory block to the 
-receiver.
+%To support the standard RDMA Verbs API used by containers and realize
+%communications with the best available data-plane mechanism, \sysname needs
+%to present a RDMA environment to containers and efficiently supports 
+%the RDMA semantics with multiple data-plane mechanisms. While RDMA has
+%four interfaces (e.g. Write, Read, Send and Receive), we use Write as an example
+%to show how \sysname supports this operation with shared-memory and real RDMA.
 
-In \sysname, both the sender and receiver containers have a virtual RDMA NIC.
-In Step 1, the sender creates a shared-memory block and write data, and then 
-the local network agent will get the pointer of this shared-memory block after the sender passes it to its virtual NIC; In Step 2, after receiving the IP of 
-the receiver, the local network agent will check whether the receiver is on
-the same host of the sender. If the answer is "Yes", the local network agent will
-directly leverage the receiver's virtual NIC to notify it that a memory block 
-from RDMA is ready to read with the pointer of the shared-memory block. 
-Otherwise, the sender's local network agent will perform an actual RDMA write
-with the receiver's local network agent, and the latter will put the received data into a shared-memory and pass it to the receiver container via its virtual NIC.
+%Figure XXX (a) shows the working flow of a standard RDMA write from containers'
+%points of view when they use Verbs API. There are generally three steps in a 
+%Write operation. 
+%Step 1: the sender first creates a memory block, puts data in it and passes 
+%the pointer of this memory block to its NIC;
+%Step 2: the sender notify its NIC to write the memory block to the receiver's IP.
+%Step 3: the receiver's NIC will get data from the sender's NIC and copy the 
+%data into a memory block and pass the pointer of the memory block to the 
+%receiver.
+
+%In \sysname, both the sender and receiver containers have a virtual RDMA NIC.
+%In Step 1, the sender creates a shared-memory block and write data, and then 
+%the local network agent will get the pointer of this shared-memory block after %the sender passes it to its virtual NIC; In Step 2, after receiving the IP of 
+%the receiver, the local network agent will check whether the receiver is on
+%the same host of the sender. If the answer is "Yes", the local network agent %will
+%directly leverage the receiver's virtual NIC to notify it that a memory block 
+%from RDMA is ready to read with the pointer of the shared-memory block. 
+%Otherwise, the sender's local network agent will perform an actual RDMA write
+%with the receiver's local network agent, and the latter will put the received data into a shared-memory and pass it to the receiver container via its virtual NIC.
 
 
 
