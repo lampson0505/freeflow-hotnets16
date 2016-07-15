@@ -1,5 +1,31 @@
 \section{System to Build} \label{sec:promise}
 
+     \begin{figure}[ht]
+     \centering 
+     \begin{subfigure}
+     \centering 
+     \includegraphics[width=0.45\textwidth]{figures/system/sys_rdma_code.pdf}
+     %\caption{} 
+     \end{subfigure}
+           
+     \begin{subfigure}
+     \centering 
+     \includegraphics[width=0.45\textwidth]{figures/system/sys_rdma_rdma.pdf}      
+     %\caption{} 
+     \end{subfigure}
+     
+     \begin{subfigure}
+     \centering
+     \includegraphics[width=0.45\textwidth]{figures/system/sys_rdma_shm.pdf}      
+     %\caption{} 
+     \end{subfigure}
+     \label{fig:system_modules}
+     \caption{The modules of \sysname.} 
+     \end{figure}
+
+
+\iffalse
+
 %P1 introduce the two components we want to build
 \sysname's main components includes a Orchestrator and a virtualized NIC.
 The Orchestrator can figure out the most efficient way for two containers to talk with each other (e.g. 
@@ -101,3 +127,5 @@ The request will call to the emulated data structures in the vNIC (e.g. QP, SQ, 
 best mechanism (e.g. RDMA, shared memory, dpdk/netmap) to implement the request. For example, if the containers
 are inter-host, RDMA will be selected. If the best mechanism is not available (e.g. NIC lack of RDMA support), it will
 fall back to the sub-optimal mechanism (e.g., TCP/IP).
+
+\fi
