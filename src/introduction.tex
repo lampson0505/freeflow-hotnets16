@@ -46,8 +46,7 @@ offered by the containers? Ideally, containers on a (bare metal) server should
 get the same networking performance as processes on the same (bare metal)
 server. However, it turns out that this is not the case, as illustrated in
 Figure~\ref{fig:motivation}.  We set up two Docker
-containers on a server (XXX CPU, YYY GB of memory, 40Gbps Mellanox CX3 NIC, Ubuntu
-XXX) with iPerf and benchmarked the network bandwidth and latency between
+containers on a server (Intel Xeon 2.40GHz 4-cores CPU, 67 GB of memory, 40Gbps Mellanox CX3 NIC, CentOS 7) with iPerf and benchmarked the network bandwidth and latency between
 them. Containers can be networked in two modes~\footnote{We ignore the third
 mode, called "bridge", to keep discussion simple.} 
 \begin{itemize}

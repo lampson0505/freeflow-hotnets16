@@ -2,6 +2,15 @@
 \label{sec:motivation}
 
 \para{Background:} 
+In this section, we introduce the background of container technology and motivate our system.
+Container technology has gain tremendous popularity since it enables a fast and less-dependent
+way to distribute, deploy or test applications and services.
+Compared with applications within processes, container provides better isolation as the dependencies of containerized applications are
+wrapped together with the application, thus can be easily distributed and deployed.
+Compared with applications inside VMs, container are much more lightweight and can be redeployed and tested in a faster and
+less expensive manner. Therefore, containers are able to be deployed in more diverse location than VM
+(e.g., on bare-metal or inside VM).
+Next we introduce the container applications that motivates our system.
 
 
 \begin{figure*}[h]  
@@ -54,12 +63,16 @@ performance of this overlay.
 
 \begin{figure}[h]  
 	\centering   
-	\includegraphics[width=0.8\linewidth]{figures/overlay.pdf}   
+	\includegraphics[width=0.8\linewidth]{figures/overlay-2.pdf}   
 	\caption{\label{fig:overlay} The design of existing container overlay networks (Weave).}   
 \end{figure}   
 
 
 \subsection{Opportunities for better networking}
+
+\vyas{I would rename this to "Bottlenecks in Container Network Performance"  --
+and perhaps even worth elevating to a separate section}
+
 
 The key to achieve a high performance and low overhead overlay network
 for containers is bypassing the performance bottlenecks, including
@@ -119,6 +132,8 @@ and low overhead network if we can enable shared-memory and RDMA
 in the data-plane of container overlay networks.
 
 \subsection{Challenges}
+
+\vyas{this may belong better in the next section in terms of talking about the requirements/challenges etc}
 
 (1) Using standard APIs, transparent to containers;
 

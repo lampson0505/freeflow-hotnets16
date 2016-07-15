@@ -1,1 +1,100 @@
 \section{System to Build} \label{sec:promise}
+
+%P1 introduce the two components we want to build
+\sysname's main components includes a container locator and a virtualized NIC.
+The container locator can figure out where the location of the container is and
+decide the most efficient way for two containers to talk with each other (e.g. 
+via shared memory, rdma or dpdk).
+And the virtualized NIC emulates the necessary underlying resource structures 
+(e.g., send queue or receive queue for RDMA). In this way, the application can
+gain the desired \emph{portability}, since the application can now use the standardized  
+APIs without being aware of the various underlying communication
+mechanisms in different environments. 
+Both of the components are shown in Figure~\ref{fig:system_modules}.
+
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.45\textwidth]{figures/system/system_modules.pdf}      
+     \label{fig:system_modules}
+     \caption{The system architecture of \sysname.} 
+     \end{figure}
+     
+      \begin{figure}[ht]
+         \centering 
+         \includegraphics[width=0.2\textwidth]{figures/rdma-container.png}   
+         \caption{??}   
+      \end{figure}
+      
+      \begin{figure}[ht]
+      	\centering 
+      	\includegraphics[width=0.2\textwidth]{figures/shared-mem-container.png}   
+      	\caption{??}   
+      \end{figure}
+
+\subsection{Container Locator}
+The Container Locator is a logic module inside the communication
+libraries of a container. For example, if the application is a RDMA application,
+the Container Locator will be inside library \texttt{libibverbs}.
+In this way, Container Locator are able to intercept the communication requests
+from the applications (e.g. send request) and intelligently decide the most
+efficient way to implement the communication request based on the locations
+of the containers.
+
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.45\textwidth]{figures/system/system_locator.pdf}      
+     \label{fig:system_locator}
+     \caption{The logic flow of Container Locator.} 
+     \end{figure}
+
+The Container Locator send queries to Mesos (resource manager) and the cloud's Fabric Controller to locate
+the sender/receiver containers and decide the most efficient way they talk with each other.
+The logic flow of this process is as shown in Figure~\ref{fig:system_locator}.
+For example, given a send request, the Container Locator will query Mesos to figure out if the 
+sender/receiver containers are intra-VM or inter-VM. 
+For intra-VM containers, the Container Locator will raise a flag to notify the virtualized NIC to
+send the data via shared memory.
+For inter-VM containers, the Container Locator will then quire if the two containers are intra-host
+or inter-host.
+If the containers are inter-VM but intra-host, Container Locator will tell the virtualized NIC to send
+the data via fast data pass across VMs in the same machine, such as NetVM\cite{} or netmaps\cite{}.
+Or if the containers are inter-host, RDMA would be the most efficient way to perform the data transfer.
+
+\tianlong{There should be some design decisions to support the above logic in design section.}
+
+%We are going to add a logic module called Container Locator inside the application's
+%library for communication. For example, the  
+
+\subsection{Virtualized NIC}
+The virtualized NIC has two roles. First, it dynamically chooses the best mechanism to implement the 
+communication requests based on the notifications from the Container Locator, as illustrated in 
+Figure~\ref{fig:system_modules}.
+For example, if the two containers are intra-VM, it will create a shared namespace and memory objects 
+for the two containers, and write the sender's data into the shared memory objects and pass the pointers of the
+memory objects to the receiver container to transfer the data.
+
+Second, the virtualized NIC (vNIC) emulates underlying network structure. 
+For example, for RDMA, the vNIC will emulate the data structures including the Send Queue, 
+Receive Queue, Completion Queue and Queue Pairs.
+In this way, the vNIC not only maintains compatibility with currently written applications, but also
+gain the desired \emph{portability}. Because the containers applications no longer need to bind to
+the underlying network structure (bind to the vNIC instead), and the vNIC can be ported along with
+the applications.
+
+% as a emulation  underlying network structure
+%a transparent layer between the application and the underlying network structure, dynamically choosing the best communication mechanism, while maintaining compatibility with currently written applications.
+
+%The decision of which mechanism to chose is based on the hardware capabilities of the hosts and the physical placement of the containers, while aiming for minimal CPU overhead and high throughput. This decision and switching between communication mechanism is done completely transparent from application.
+
+%For intra-host communication, virtualized NIC will use shared memory communication inducing minimal pressure on the CPU while reaching high throughput (~ memory bandwidth). For inter-host communication, the virtualized NIC will prioritize RDMA communication when supported by the underlying hardware. Otherwise, it will use TCP/IP communication. 
+
+\subsection{Put It Together}
+Now let's put the components together and see the workflow of \sysname, as shown in Figure~\ref{fig:system_modules}.
+Let's take two rdma applications (in container2 and container3) as an example.
+Suppose application in container2 (app2 in short) issues a send data to container3 request via standardized Verbs API.
+The Container Locator will intercept the request can query Mesos or Fabric Controller to obtain the locations of 
+container2 and container3. Then will pass the request along with a notification (of the best mechanism) to the vNIC.
+The request will call to the emulated data structures in the vNIC (e.g. QP, SQ, RQ, CQ). And the vNIC will choose the
+best mechanism (e.g. RDMA, shared memory, dpdk/netmap) to implement the request. For example, if the containers
+are inter-host, RDMA will be selected. If the best mechanism is not available (e.g. NIC lack of RDMA support), it will
+fall back to the sub-optimal mechanism (e.g., TCP/IP).
