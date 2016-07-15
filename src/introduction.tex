@@ -50,15 +50,26 @@ However, this isolation and portability comes at the cost of performance. We
 illustrate this with a simple experiment.  We set up two Docker containers on a
 server (Intel Xeon 2.40GHz 4-cores CPU, 67 GB of memory, 40Gbps Mellanox CX3
 NIC, CentOS 7) with iPerf and benchmarked the network bandwidth and latency
-between them.  Containers can be networked in two modes~\footnote{We ignore the
-bridge mode for simplicity.}: $(a)$ {\em Host}, in which one container binds an
-interface and a port on the host and use the host's IP to communicate, like an
-ordinary process. The containers are not truly isolated, since they must share
-the port space.  $(b)$ {\em Overlay}, in which the host runs a software router
-which connects all containers on the host via bridge network. An overlay network
-crossing multiple hosts is constructed by the software routers to achieve a
-uniform IP assignment and traffic routing on the overlay. This makes containers
-fully portable -- they can even have public IPs assigned to them.
+between them.  
+
+The two containers communicate using three possible modes. $(a)$ {\em Shared
+memory:} The containers can be set up to share a region of memory which can be
+used as a communication channel. This is the least isolated and the least
+portable mode of communication, since the containers must be on the same host,
+special steps must be taken during container creation, and the applications must
+be made aware of the shared memory region.
+and the application must  memory region, and use IPC calls
+for communication.
+
+Containers can be networked in two modes~\footnote{We ignore the bridge mode for
+simplicity.}: $(a)$ {\em Host}, in which one container binds an interface and a
+port on the host and use the host's IP to communicate, like an ordinary process.
+The containers are not truly isolated, since they must share the port space.
+$(b)$ {\em Overlay}, in which the host runs a software router which connects all
+containers on the host via bridge network. An overlay network crossing multiple
+hosts is constructed by the software routers to achieve a uniform IP assignment
+and traffic routing on the overlay. This makes containers fully portable -- they
+can even have public IPs assigned to them.
 
 \begin{figure}[ht]
      \centering 
@@ -67,6 +78,9 @@ fully portable -- they can even have public IPs assigned to them.
      \caption{Performance of two modes of container networking, compared to
      shared memory IPC.} 
 \end{figure} 
+
+In addtion, we also consider a third mode, in which containers comunicate via
+shared memory. This mode requires special configuration, and is the leat
 
 Figure~\ref{fig:three_modes} shows the median network bandwidth and latency
 between two containers with the two networking modes. The error bars show SIQR.
