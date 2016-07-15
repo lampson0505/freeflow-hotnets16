@@ -1,25 +1,23 @@
 \section{Background and Motivation}
 \label{sec:motivation}
 
-\para{Background:} 
-In this section, we introduce the background of container technology and motivate our system.
-Container technology has gain tremendous popularity since it enables a fast and less-dependent
-way to distribute, deploy or test applications and services.
-Compared with applications within processes, container provides better isolation as the dependencies of containerized applications are
-wrapped together with the application, thus can be easily distributed and deployed.
-Compared with applications inside VMs, container are much more lightweight and can be redeployed and tested in a faster and
-less expensive manner. Therefore, containers are able to be deployed in more diverse location than VM
-(e.g., on bare-metal or inside VM).
-Next we introduce the container applications that motivates our system.
-
-
-\begin{figure*}[h]  
+In this section, we introduce the background of container technology and
+motivate our system.  Container technology has gain tremendous popularity since
+it enables a fast and less-dependent way to distribute, deploy or test
+applications and services.  Compared with applications within processes,
+container provides better isolation as the dependencies of containerized
+applications are wrapped together with the application, thus can be easily
+distributed and deployed.  Compared with applications inside VMs, container are
+much more lightweight and can be redeployed and tested in a faster and less
+expensive manner. Therefore, containers are able to be deployed in more diverse
+location than VM (e.g., on bare-metal or inside VM). 
+\begin{figure*}  
 	\centering   
 	\includegraphics[width=6.7in]{figures/deployment-cases}   
 	\caption{\label{fig:deploy-cases} Representative running environments of containers.}   
 \end{figure*}
 
-Most containerized applications are usually composed of multiple containers. For
+Most containerized applications are usually composed from multiple containers. For
 example, each master and slave node in Hadoop is an individual container; A web
 service can include layers, such as load balancer, web server, in-memory cache
 and backend database, and each layer can be a distributed system with multiple
@@ -35,7 +33,7 @@ Depending on whether containers run on bare-metal hosts or VM hosts,
 Figure~\ref{fig:deploy-cases} illustrates the four cases any container
 networking solution must handle. For maximum portability, containers today often
 use ovelay networks as shown in Figure~\ref{fig:overlay}. A number of software
-solutions are available to provide this overlay fabric, including
+solutions are available to provide this overlay fabric, such as 
 Weave~\cite{wave} and Calico~\cite{calico}. The host (i.e. the server or the VM)
 runs software router. The router connect to the NIC of the host. It also
 connects with the virtual interfaces of the containers on the host via a
@@ -50,51 +48,33 @@ The CPU overhead of processing packets in the software bridge, as well as in the
 software router (for off-host communication) is the primary bottleneck to the
 performance of this overlay.
 
-%% In this paper, we focus on the cases (a) and (b) in
-%% Figure~\ref{fig:deploy-cases} and discuss how to support the other two cases in
-%% the future.
-
-\subsection{Existing container overlay networks}
-
-\vyas{seems like a logical disconnect to me .. why is there a section on overlay networks?}
-
-\vyas{i would keep it simple as follows: 2.1 -- background 2.2 -- measurements 2.3 -- insights. dont get too fancy 
- in subsection titles/structure}
-
-\begin{figure}[h]  
+\begin{figure}  
 	\centering   
 	\includegraphics[width=0.8\linewidth]{figures/overlay-2.pdf}   
 	\caption{\label{fig:overlay} The design of existing container overlay networks (Weave).}   
 \end{figure}   
 
+The key to achieve a high performance and low overhead overlay network for
+containers is bypassing the performance bottlenecks, including bridges, software
+routers and host OS kernel, on data-plane. Given that containers are essentially
+processes, the communication channels provided by IPC and hardware offloading
+techniques give us numerous hammers to build a better container network. For
+instance, containers within a single host (like Container-1 and Container-2 in
+Figure~\ref{fig:overlay}) can communicate via shared-memory and software routers
+in different hosts can talk via RDMA, which helps to bypass performance
+bottlenecks.
 
-\subsection{Opportunities for better networking}
-
-\vyas{I would rename this to "Bottlenecks in Container Network Performance"  --
-and perhaps even worth elevating to a separate section}
-
-
-The key to achieve a high performance and low overhead overlay network
-for containers is bypassing the performance bottlenecks, including
-bridges, software routers and host OS kernel, on data-plane. Given that
-containers are essentially processes, the communication channels provided
-by IPC and hardware offloading techniques give us numerous hammers to 
-build a better container network. For instance, 
-containers within a single host (like Container-1 and 
-Container-2 in Figure~\ref{fig:overlay}) can communicate via 
-shared-memory and software routers in different hosts can talk via RDMA, 
-which helps to bypass performance bottlenecks.
-
-To understand the network performance and overhead when containers
-talk via shared-memory and RDMA \footnote{In this paper, we choose RDMA
-as a representative hardware offloading technique, and we will consider other
-alternatives in the future.}, we conducted network bandwidth and latency benchmarks between two containers. In the shared-memory case, the sender
-container opens a pieces of shared memory and write data into it, and 
-the receiver container can read the memory once it gets the pointer of 
-the shared memory from the sender; In the RDMA case, both the sender
-and the receiver use host modes and communicate with the standard RDMA API
-over the host NICs. We use Weave to in the evaluation of existing overlay
-networks. The results are shown in Figure XXX.
+To understand the network performance and overhead when containers talk via
+shared-memory and RDMA \footnote{In this paper, we choose RDMA as a
+representative hardware offloading technique, and we will consider other
+alternatives in the future.}, we conducted network bandwidth and latency
+benchmarks between two containers. In the shared-memory case, the sender
+container opens a pieces of shared memory and write data into it, and the
+receiver container can read the memory once it gets the pointer of the shared
+memory from the sender; In the RDMA case, both the sender and the receiver use
+host modes and communicate with the standard RDMA API over the host NICs. We use
+Weave to in the evaluation of existing overlay networks. The results are shown
+in Figure XXX.
 
      \begin{figure}[ht]
      \centering 
