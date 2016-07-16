@@ -4,6 +4,17 @@
 %DPDK and NetMap \cite{netmap}
 
 \textbf{Inter-VM Communication:} 
+The tussle between isolation and performance is not unique to containers.
+In the field of Inter-VM Communication, there are several works that provides
+high-performance by removing some of the isolation constraints.
+For example, NetVM\cite{netvm} provides a shared-memory framework that
+exploits the DPDK library to provide zero-copy delivery between VMs.
+Netmap\cite{netmap} and VALE\cite{vale} (which is also used by ClickOS\cite{clickos}) 
+are sharing buffers and metadata between kernel and userspace to eliminate memory copies.
+However, these works actually strengthened the binding between VM and underlying host
+structures, thus they cannot satisfy the portability requirement for \sysname. 
+Also, there works is applicable only to intra-host setting, constrained by the possibility
+of shared memory.
 
 \textbf{RDMA and HPC}
 VMware RDMA work
