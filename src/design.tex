@@ -48,11 +48,12 @@ network APIs, e.g. Socket for TCP/IP, Verbs for RDMA, MPI for parallel computing
 backward compatibility. On the other hand, the actual data-plane mechanism
 should be hidden behind the network abstraction layer and transparent to 
 application code. There are two options to realize a network abstraction.
-The first option is to modify the implementation libraries of existing
+The first option is to modify the implementation all libraries of existing
 network APIs. When applications calls the APIs, \sysname intercepts
-the function calls and performance it own logic of networking. 
-The second option is to leave the libraries unchanged and manage the networking
-behaviors on the interfaces of containers.
+the function calls and performance its logic of networking. 
+The second option is to let \sysname only support one API semantics for
+data transfers, and develop translation layer which convert different
+existing API semantics into the one supported by \sysname.
 
 The design of~\sysname fully considers the requirements from all these three
 components.
@@ -63,9 +64,11 @@ Figure~\ref{fig:sysarch} shows the architecture and design choices on each
 components of~\sysname. Network orchestrator and the network agents compose 
 the centralized control-plane of~\sysname. The network agent running in each 
 host coordinates multiple data-plane mechanisms according to the information and 
-configurations feed from the network orchestrator. 
-We choose to provide a virtual NIC on each container, which is indeed one part of network agent on the host, to induce the communications among containers 
-into \sysname. We present the design choices as following:
+configurations feed from the network orchestrator. RDMA Verbs library is the core
+of the network abstraction. Different networking APIs (e.g. Socket) for data
+transfers are translated to the semantics of RDMA and performed by the RDMA
+Verbs library. A virtual RDMA NIC is created for each container to make the
+actual data-plane mechanism transparent to Verbs library.
 
 \para{Centralized control-plane:} \sysname inherently needs a (conceptually)
 centralized control-plane because the IP assignment, routing configuration and 
@@ -89,17 +92,18 @@ same host, otherwise, it will conduct the communicate going through
 the NIC of its host. Depending on the capability of the NIC, the traffic 
 between two hosts can be delivered via RDMA, DPDK or TCP/IP.
 
-\para{Network abstraction with virtual NICs:} \sysname chooses not to change 
-any networking APIs or libraries used by applications for the best
-compatibility and flexibility in programming. Instead, \sysname intercepts
-the communications between containers via the virtual NIC, or vNIC, it 
-inserts into each container. One vNIC mimics a real NIC from a container's
-point of view. For containers using TCP/IP, it hands over all outgoing packets
-to the network agent on the same host; For containers that use kernel bypassing
-techniques, e.g. RDMA or DPDK, etc., a vNIC also hands over all configurations
-it gets directly from applications to the network agent on the same host. 
-The latter will decide how to handle the configurations and deliver data
-properly.
+\para{Network abstraction with virtual NICs:} 
+We choose to provide a single data transfer API which is RDMA Verbs for two
+reasons. First of all, RDMA Verbs is flexible for upper-layer APIs.
+RDMA Verbs is a general message-passing API which can 
+easily support multiple API semantics on its top. There are already libraries
+available to translate TCP/IP~\cite{?} and MPI APIs~\cite{?} to RDMA Verbs 
+semantics. 
+Second, RDMA Verbs is also flexible to under-layer data-plane mechanism. 
+The actual data-plane of RDMA Verbs can be either RDMA enabled networks and 
+ordinary IP networks (using TCP as a transport). 
+In addition, its memory copying APIs can 
+easily support shared-memory semantics on the data-plane. 
 
 In next section, we will discussion about our implementation plan of \sysname.
 
