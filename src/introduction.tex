@@ -28,12 +28,12 @@ reduced.
 
 In each case, as the impact of the performance drop was felt, new techniques
 were devised to improved performance by sacrificing some portability and
-isolation.  For example, kernel-bypass techniques such as RDMA~cite{xxx} and
-DPDK~{xxx} completely bypass the TCP/IP stack improve performance, but reduce
+isolation.  For example, kernel-bypass techniques such as Remote Direct Memory Access (RDMA) and
+DPDK \cite{dpdk} completely bypass the TCP/IP stack improve performance, but reduce
 portability (the code can only run on certain hardware) and offer less isolation
 (the application is more exposed to hardware vagaries, and kernel cannot provide
 protections like rate limiting and firewalls). In case of virtualization,
-techniques like SRiOV~\cite{xxx} and NetVM~\cite{netvm} pierce through the
+techniques like SR-IOV \cite{sriov} and NetVM~\cite{netvm} pierce through the
 isolation boundary enforced by the hypervisor to offer better performance. 
 
 The latest step in this trend is called containerization.  By wrapping a process
@@ -67,17 +67,17 @@ network crossing multiple hosts is constructed by the software routers to
 achieve a uniform IP assignment and traffic routing on the overlay. This makes
 containers fully portable -- they can even have public IPs assigned to them. 
 
-The results are shown in Figure~\ref{fig:three_modes}.
+
 
 \begin{figure}[ht]
      \centering 
      \includegraphics[width=0.5\textwidth]{figures/intro/intro_exist2.pdf} 
-     \label{fig:three_modes}
      \caption{Performance of two modes of container networking, compared to
      shared memory IPC.} 
+     \label{fig:three_modes} 
 \end{figure} 
 
-We make two observations from this figure. First, that the throughput and
+The results are shown in Figure~\ref{fig:three_modes}. We make two observations from this figure. First, that the throughput and
 latency of both modes of inter-container communication is significantly worse
 than shared-memory IPC. The reason is obvious: the container communication takes
 a ``hairpin'' path through the full TCP/IP stack. Second, the performance of
@@ -89,7 +89,7 @@ illustrates the performance cost of isolation and portability.
 As the popularity of container networking grows, this inefficiency must be
 addressed. On one hand, the low throughput and high latency directly impacts
 the overall performance of large scale distributed systems, such as big data
-analytics~\cite{choudhury-paper}, key-value store~\cite{farm}, machine learning,
+analytics~\cite{choudhury-paper,mapreduce}, key-value store~\cite{farm,cassandra,bigtable}, machine learning,
 etc.  On the other hand, it forces the applications to reserve substantial CPU
 resources to merely perform traffic processing, which significantly raise the
 cost of running the applications.
@@ -126,7 +126,7 @@ a manner that is completely transparent to application developers.
 
 To achieve these seemingly conflicting goals, we observe an opportunity to
 leverage two key aspects of typical container deployments: (1) they are
-typically managed by a central orchestrator (E.g., Mesos) and (2) are typically
+typically managed by a central orchestrator (E.g., Mesos \cite{mesos}) and (2) are typically
 deployed over managed network fabrics (e.g., a public cloud provider). Taking
 advantage of these easily available additional bits of information, we sketch a
 roadmap for an overlay-based solution  with flexible IP assignment and routing

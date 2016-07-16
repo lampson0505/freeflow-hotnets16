@@ -9,9 +9,9 @@ with the application, makiing them highly portable: they can be easily
 distributed and deployed.  Compared with VMs, container are much more
 lightweight and can be redeployed and tested in a faster and less expensive
 manner. Containers can be deployed both within a VM or on bare metal. Containers
-are supported by both Linux an Windows operating system.  Docker~\cite{xxx} is
+are supported by both Linux an Windows operating system.  Docker~\cite{docker} is
 perhaps the most popular container management system, although there are many
-others as well~\cite{xxx}.
+others as well~\cite{coreos,kubernetes}.
 
 \begin{figure*}  
 	\centering   
@@ -20,12 +20,12 @@ others as well~\cite{xxx}.
 \end{figure*}
 
 Most containerized applications are usually composed from multiple containers.
-For example, each master and slave node in Hadoop is an individual container; A
+For example, each mapper and reducer node in Hadoop \cite{hadoop} is an individual container; A
 web service can include layers, such as load balancer, web server, in-memory
 cache and backend database, and each layer can be a distributed system with
 multiple containerized nodes. These containers are usually deployed into a
 multi-host server cluster, and the deployment is usually controlled by a cluster
-orchestrator, e.g. Mesos~\cite{xxx}.  Such architecture makes it easier to
+orchestrator, e.g. Mesos~\cite{mesos}.  Such architecture makes it easier to
 upgrade the nodes or mitigate failures, since a stopped container can be quickly
 replaced by a new one on the same or a different host.  Working as a single
 application, containers need to exchange data, and the network performance has a
@@ -36,7 +36,7 @@ Figure~\ref{fig:deploy-cases} illustrates the four cases any container
 networking solution must handle. For maximum portability, containers today often
 use ovelay networks as shown in Figure~\ref{fig:overlay}. A number of software
 solutions are available to provide this overlay fabric, such as
-Weave~\cite{wave} and Calico~\cite{calico}. 
+Weave~\cite{weave} and Calico~\cite{calico}. 
 
 The host (i.e. the server or the VM) runs software router. The router connect to
 the NIC of the host. It also connects with the virtual interfaces of the
