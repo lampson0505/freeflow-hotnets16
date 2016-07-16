@@ -10,17 +10,17 @@ struggle between isolation, portability and performance. \\
 
 At the dawn of computing, applications had access to (and had to manage) raw
 hardware. Applications were not portable, and isolation between
-applications was non-existent. As operating systems emerged, they offered a modicum 
+applications was non-existent. Operating systems emerged and offered a modicum 
 of isolation and portability.  As users demanded more portability and better
-isolation between applications, operating systems became more sophisticated,
+isolation across applications, OSes became more sophisticated,
 and deep layering became the norm; e.g., the modern TCP/IP stack is a classic
-example of this trend.  Layering improves the application's portability across
+example.  Layering improves the application's portability across
 systems and types of  networks, but incurs well-known performance
 issues~\cite{dcqcn,luigipapers}. The trend continued with virtualization, which offers even more isolation, and
 additional portability (e.g., you can pack up and move VMs at will, even live-migrate
 them). In return, performance -- especially the network performance is further
 reduced~\cite{}, and requires any number of hacks to pierce through the
-isolation boundary enforced by the hypervisor to offer better performance (e.g.,~\cite{sriov,netvm,netmap,dpdk}).
+isolation boundaries to offer better performance (e.g.,~\cite{sriov,netvm,netmap,dpdk}).
 
 
 %, and offers a certain
@@ -66,7 +66,7 @@ testing to high availability maintenance.
      \label{fig:three_modes} 
 \end{figure} 
  Unfortunately, containers too suffer the veritable curse of having 
- to sacrifice performance at the expense of isolation and portability. 
+ to sacrifice one or more of performance, isolation, and portability. 
  To understand these potential performance bottlenecks, we set up a simple experiment (more details in Section~\ref{sec:motivation}).  
  We set up two Docker containers on a
 server (Intel Xeon 2.40GHz 4-cores CPU, 67 GB of memory, 40Gbps Mellanox CX3
