@@ -77,7 +77,7 @@ containers fully portable -- they can even have public IPs assigned to them.
      \label{fig:three_modes} 
 \end{figure} 
 
-The results are shown in Figure~\ref{fig:three_modes}. We make two observations from this figure. First, that the throughput and
+The results are shown in Figure~\ref{fig:three_modes}. \vyas{will try to place figures on pg1}. We make two observations from this figure. First, that the throughput and
 latency of both modes of inter-container communication is significantly worse
 than shared-memory IPC. The reason is obvious: the container communication takes
 a ``hairpin'' path through the full TCP/IP stack. Second, the performance of
@@ -126,7 +126,7 @@ a manner that is completely transparent to application developers.
 
 To achieve these seemingly conflicting goals, we observe an opportunity to
 leverage two key aspects of typical container deployments: (1) they are
-typically managed by a central orchestrator (E.g., Mesos  \cite{mesos} \vyas{also add kubernetes or whatever to enure this 
+typically managed by a central orchestrator (E.g., Mesos \cite{mesos} \vyas{also add kubernetes or whatever to enure this 
  is not mesos specific}) and (2) are typically
 deployed over managed network fabrics (e.g., a public cloud provider). Taking
 advantage of these easily available additional bits of information, we sketch a
