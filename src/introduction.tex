@@ -15,17 +15,17 @@ portability.  As users demanded more portability and better isolation across
 applications, OSes became more sophisticated, and deep layering became the norm;
 e.g., the modern TCP/IP stack is a classic example.  Layering improves the
 application's portability across systems and types of  networks, but incurs
-well-known performance issues~\cite{dcqcn,luigipapers}. Soon enough, solutons
+well-known performance issues~\cite{dcqcn,netmap}. Soon enough, solutions
 like DPDK~\cite{dpdk} and RDMA~\cite{rdma} emerged that traded off some
 portability and isolation to provide better performance.  The trend continued
 with virtualization, which offers even more isolation, and additional
 portability (e.g., you can pack up and move VMs at will, even live-migrate
 them). In return, performance -- especially the network performance is further
-reduced~\cite{xxx}. Numerous technologies have been proposed to remedy the
+reduced~\cite{netvm}. Numerous technologies have been proposed to remedy the
 situation (e.g.,~\cite{sriov,netvm,netmap,dpdk}) -- again at the cost of
 isolation and portability.
 
-The latest step in this trend is {\em containerization}~\cite{XXX}.  By wrapping
+The latest step in this trend is {\em containerization}~\cite{docker,kubernetes,coreos}.  By wrapping
 a process into a complete filesystem and namespace cell, a container has
 everything needed to run the process, including executables, libraries and
 system tools.  A container has no external dependencies, which makes it highly
@@ -77,8 +77,8 @@ illustrates the performance cost of isolation and portability.
 As the popularity of container networking grows, this inefficiency must be
 addressed. On one hand, the low throughput and high latency directly impacts the
 overall performance of large scale distributed systems, such as big data
-analytics~\cite{choudhury-paper,mapreduce}, key-value
-store~\cite{farm,cassandra,bigtable}, machine learning, etc.  On the other hand,
+analytics~\cite{varys,orchestra,reining,chowdhury}, key-value
+store~\cite{farm}, machine learning, etc. On the other hand,
 it forces the applications to reserve substantial CPU resources to merely
 perform traffic processing, which significantly raise the cost of running the
 applications.
@@ -102,8 +102,8 @@ a manner that is completely transparent to application developers.
 
 To achieve these seemingly conflicting goals, we observe an opportunity to
 leverage two key aspects of typical container deployments: (1) they are
-typically managed by a central orchestrator (E.g., Mesos
-\cite{mesos,kubernetes,xxx} and (2) are typically deployed over managed network
+typically managed by a central orchestrator (E.g., Mesos, YARN and Kubernetes
+\cite{mesos,yarn,kubernetes}) and (2) are typically deployed over managed network
 fabrics (e.g., a public cloud provider). Taking advantage of these easily
 available additional bits of information, we sketch a roadmap for an
 overlay-based solution  that obtains the relevant deployment-specific
