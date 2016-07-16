@@ -10,7 +10,7 @@ chroot}~\cite{chroot} to provide namespace isolation.  The dependencies of
 containerized applications are bundled together with the application, making
 them highly portable: they can be easily distributed and deployed~\cite{docker}.
 Compared to VMs, containers are much more lightweight and can be initialized
-much faster~\cite{xxx}.  manner. Containers can be deployed both within a VM or
+much faster~\cite{xxx}. Containers can be deployed both within a VM or
 on bare metal. Containers are supported by both Linux an Windows operating
 system.  Docker~\cite{docker} is perhaps the most popular container management
 system, although there are many others as well~\cite{coreos,kubernetes}.
@@ -25,7 +25,7 @@ orchestrator, e.g. Mesos~\cite{mesos} or Kubernetes~\cite{xxx}.  Such architectu
 upgrade the nodes or mitigate failures, since a stopped container can be quickly
 replaced by a new one on the same or a different host.  Working as a single
 application, containers need to exchange data, and the network performance has a
-significant impact on the overall application performance~\cite{coflow-etc.}
+significant impact on the overall application performance~\cite{varys,orchestra,reining,chowdhury}
 
 Depending on whether containers run on bare-metal hosts or VM hosts, there are
 four cases any container networking solution must handle. These cases are
