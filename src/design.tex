@@ -1,5 +1,10 @@
 \section{Design} \label{sec:design}
 
+\vyas{1. call this a overview section. 
+2. move the insight nugget from previous section to here
+3. before going to overview revisit the landscape of alternatives and kill them
+4. main thing i want from this section is insight + sketch of what will change. this control/data is muddling that story IMO}
+
 \begin{figure}[t!] 
      \centering 
      \includegraphics[width=3.2in]{figures/system-arch.pdf} 
@@ -17,6 +22,10 @@ Our goal is to design a complete network solution which can enable containers
 to communicate with portability, isolation and high performance at the same time.
 Basically, this solution has three major components: control-plane, data-plane 
 and networking abstraction. 
+
+\vyas{is this referring to ANY solution or OUR solution. im confused. also this ctr/data/abstraction is again 
+a bit misleading .. its true for ANY network model, what is unique to container world here?}
+
 
 A \textbf{control-plane} handles IP address assignment, routing and manages global states of a container network.
 A flexible control-plane is a must for portability and isolation. 
@@ -65,7 +74,8 @@ components of~\sysname. Network orchestrator and the network agents compose
 the centralized control-plane of~\sysname. The network agent running in each 
 host coordinates multiple data-plane mechanisms according to the information and 
 configurations feed from the network orchestrator. RDMA Verbs library is the core
-of the network abstraction. Different networking APIs (e.g. Socket) for data
+of the network abstraction. \vyas{please nuke/reword the previous section. dont make the RDMA the CRUX of the solution. its a recipe
+ for disaster.} Different networking APIs (e.g. Socket) for data
 transfers are translated to the semantics of RDMA and performed by the RDMA
 Verbs library. A virtual RDMA NIC is created for each container to make the
 actual data-plane mechanism transparent to Verbs library.
@@ -106,6 +116,11 @@ In addition, its memory copying APIs can
 easily support shared-memory semantics on the data-plane. 
 
 In next section, we will discussion about our implementation plan of \sysname.
+
+\vyas{here is my problem with this section. at the end of the day i dont get a AHA insight from this section nor can i really 
+ envision  how the world will change because of your insight and what the steps to that will be. in some sense this sounds more 
+like the detailed design in sec 4 rather than the arch overview for sec 3. i really dont like fig 4 --> i cant quickly understand 
+ what YOUR insight/prposal is. it looks like the same as every other figure you have drawn so far}
 
 %\subsection{Working flows of FreeFlow}
 
