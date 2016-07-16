@@ -1,6 +1,25 @@
 \section{System to Build} \label{sec:promise}
 
-     \begin{figure}[th]
+
+In this section, we show our roadmap to realize \sysname and a preliminary 
+implementation.
+
+\subsection{Network orchestrator}
+
+The main functionality of the network orchastrator is to feed network agents
+the realtime information of container locations and VM locations (if needed).
+Since containers are typically started and managed by a cluster orchestrator
+(e.g. Marathon/Mesos), the container to host mapping can be easily accessed
+from the cluster orchestrator. \sysname only adds a small module into 
+existing clusters orchstrators to push the newest container-to-host mapping
+to all network agents in the cluster. Similary, if hosts are VMs and further optimizations are needed for the communications in case (c) and (d) in 
+Figure~\ref{fig:deploycases}, \sysname adds a similar module to cloud fabric
+controllers (e.g. OpenStack Nova) to push the newest VM-to-machine mapping
+to network agents.
+
+\subsection{Network agent}
+
+     \begin{figure}[t!]
      \centering 
      \begin{subfigure}
      \centering 
@@ -18,17 +37,22 @@
      \caption{The steps and pseudo code of applications executing a RDMA Write.} 
      \end{figure}
 
-% P1
-In this section, we show the workflow of \sysname and how to 
-implement the standard RDMA Verbs API with best available data-plane mechanism.
-To achieve good portability, the container application that uses the RDMA Verbs API should not be aware of
-underlying data-plane mechanism. \vyas{why are you again tieing this so much to RDMA ??}
-Here we take RDMA Write, two basic RDMA operations (read and write), 
-to show how \sysname implement this operation with best data-plane mechanism available (shared-memory or real RDMA).
+Network agent decides which data-plane mechanism to use for data transfers
+between containers. Because the network abstrction layer has already convert
+data transfers uniformly to standard RDMA operations, network agent can simply
+handle RDMA Write and Read operations between containers (or actually vNICs
+of containers). We take Write as an example to explain the working flow of
+network agent, and Read will be similar.
 
-Figure~\ref{fig:sys_rdma_steps_code} shows the steps and pseudo code of 
-a standard RDMA Write from containers' points of view when they use Verbs API. 
-There are generally three steps in a Write operation:
+Conceptually, network agent needs to enable two containers to use shared-memory
+to communicate if they are in the same host (so managed by a single network
+agent). Otherwise, it tries to create a real RDMA channel to delivery the data.
+However, no matter which choice it makes, the vNIC of a container should always
+feel like that it is writing data directly to another vNIC with standard RDMA.
+
+\para{Standard RDMA Write} First, standing at a vNIC's point of view, we show
+the process of a RDMA write operation. 
+Figure~\ref{fig:sys_rdma_steps_code} shows the three main steps with a piece of sample sample code:
 \begin{itemize}
   \item Step 1: the sender create a buffer for send data (buffer1), and the receiver create a buffer for receive data (buffer2). 
 Both sender and receiver register the address of the buffer with its NIC;
@@ -36,11 +60,53 @@ Both sender and receiver register the address of the buffer with its NIC;
   \item Step 3: the sender will post the send request to the NIC along with the address of buffer1 and buffer2. The sender's
   and receiver's NIC will directly copy the data in buffer1 to buffer2.
 \end{itemize}
-Next we show how \sysname implement the RDMA Write operation in inter-host and intra-host settings.
 
-\textbf{Real RDMA in inter-host setting:} First we show 
-how \sysname implemented RDMA Write with Real RDMA in inter-host setting,
-illustrated in Figure~\ref{fig:sys_rdma_rdma}. 
+In \sysname, the buffers created by both sender and receiver are shared
+with network agent, and latter can directly manipulate the former.
+
+\para{Intra-host case} At Step 3, the network agent directly copy the content
+from buffer1 to buffer2, and notify the vNIC of the receiver when the copy is
+finished. 
+%Note that the memory copy from buffer1 to buffer2 is unavoidable
+%because buffer1 (buffer2) will be reused or deleted by the sender (receiver).
+
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.45\textwidth]{figures/system/sys_rdma_shm.pdf}      
+     \label{fig:sys_rdma_shm}
+     \caption{How \sysname implemented RDMA write in inter-host setting.} 
+     \end{figure}
+
+
+\para{Inter-host case} At Step 3, the sender's network agent initiates a
+new RDMA write to the receiver's network agent. In this new Write, 
+both of the network agents will directly use buffer1 and buffer2, so that
+the content in buffer1 will be directly copied into buffer2 via
+the physical NICs. After this Write is done, the receiver's network agent
+will notify the vNIC of the receiver. 
+
+     \begin{figure}[th]
+     \centering 
+     \includegraphics[width=0.45\textwidth]{figures/system/sys_rdma_rdma.pdf}
+     \label{fig:sys_rdma_rdma}
+     \caption{How \sysname implemented RDMA write in inter-host setting.} 
+     \end{figure}
+
+
+\subsection{Network abstraction}
+The network abstraction layer includes vNIC, RDMA Verbs library and adaptation
+libraries which translates other API calls into RDMA API calls. 
+While the last two are available and we do not need to make any changes to them,
+we need to develop vNIC which is a virtual NIC that understand the protocols
+between RDMA programs and RDMA NICs. It forwards Write and Read requests to 
+network agent and notifies the programs when a Write or Read request is finished
+by network agent. 
+
+%%% commented 
+\iffalse
+\para{Real RDMA in inter-host setting:} First we show 
+how \sysname implemented RDMA Write in inter-host setting
+as shown in Figure~\ref{fig:sys_rdma_rdma}. 
 In \sysname, both the sender and receiver containers have a virtual NIC (vNIC).
 Different from standard RDMA Write, the applications in the container post
 the send request to the virtualized network structures (e.g., RDMA Send Queue)
@@ -50,15 +116,9 @@ Mesos or Fabric Controller).
 For example, in inter-host setting, RDMA is probably the best mechanism. Then
 the vNIC will pass down the send request to the real NIC for RDMA transfer.
 
-     \begin{figure}[th]
-     \centering 
-     \includegraphics[width=0.45\textwidth]{figures/system/sys_rdma_rdma.pdf}
-     \label{fig:sys_rdma_rdma}
-     \caption{How \sysname implemented RDMA write in inter-host setting.} 
-     \end{figure}
 
-\textbf{Shared memory in intra-host setting:} Figure~\ref{fig:sys_rdma_shm} shows 
-how \sysname implemented RDMA Write with Real RDMA in inter-host setting.
+\para{Shared memory in intra-host setting:} Figure~\ref{fig:sys_rdma_shm} shows 
+how \sysname implemented RDMA Write in inter-host setting.
 Suppose the vNIC can find out the best dataplane mechanism for inter-host setting
 is shared-memory, for example, ask the local network agent to check whether the 
 receiver is on the same host of the sender.
@@ -69,12 +129,6 @@ In step 2, the receiver will pass the address of shared memory obj2 to the sende
 Then in step 3, the sender can directly write to the shared memory obj2 of the
 receiver, and notify the receiver when the write is finished.
 
-     \begin{figure}[ht]
-     \centering 
-     \includegraphics[width=0.45\textwidth]{figures/system/sys_rdma_shm.pdf}      
-     \label{fig:sys_rdma_shm}
-     \caption{How \sysname implemented RDMA write in inter-host setting.} 
-     \end{figure}
 
 
 \vyas{really lost in this section. it needs a lot more structure and handholding to convince 
@@ -82,8 +136,6 @@ receiver, and notify the receiver when the write is finished.
 to talk about two narrow/corner cases but that doesnt give me any confidence that you have a solution 
 sketch!}
 
-%%% commented 
-\iffalse
 To support the standard RDMA Verbs API used by containers and realize
 communications with the best available data-plane mechanism, \sysname needs
 to present a RDMA environment to containers and efficiently supports 

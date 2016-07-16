@@ -73,8 +73,8 @@ Figure~\ref{fig:sysarch} shows the architecture and design choices on each
 components of~\sysname. Network orchestrator and the network agents compose 
 the centralized control-plane of~\sysname. The network agent running in each 
 host coordinates multiple data-plane mechanisms according to the information and 
-configurations feed from the network orchestrator. RDMA Verbs library is the core
-of the network abstraction. \vyas{please nuke/reword the previous section. dont make the RDMA the CRUX of the solution. its a recipe
+configurations feed from the network orchestrator. RDMA Verbs is selected as 
+the basic interface for data transfers in the network abstraction. \vyas{please nuke/reword the previous section. dont make the RDMA the CRUX of the solution. its a recipe
  for disaster.} Different networking APIs (e.g. Socket) for data
 transfers are translated to the semantics of RDMA and performed by the RDMA
 Verbs library. A virtual RDMA NIC is created for each container to make the
