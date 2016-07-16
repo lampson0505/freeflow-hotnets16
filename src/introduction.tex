@@ -16,7 +16,7 @@ isolation across applications, OSes became more sophisticated,
 and deep layering became the norm; e.g., the modern TCP/IP stack is a classic
 example.  Layering improves the application's portability across
 systems and types of  networks, but incurs well-known performance
-issues~\cite{dcqcn,luigipapers}. The trend continued with virtualization, which offers even more isolation, and
+issues~\cite{dcqcn,netmap}. The trend continued with virtualization, which offers even more isolation, and
 additional portability (e.g., you can pack up and move VMs at will, even live-migrate
 them). In return, performance -- especially the network performance is further
 reduced~\cite{}, and requires any number of hacks to pierce through the
@@ -106,7 +106,7 @@ illustrates the performance cost of isolation and portability.
 As the popularity of container networking grows, this inefficiency must be
 addressed. On one hand, the low throughput and high latency directly impacts
 the overall performance of large scale distributed systems, such as big data
-analytics~\cite{choudhury-paper,mapreduce}, key-value store~\cite{farm,cassandra,bigtable}, machine learning,
+analytics~\cite{choudhury-paper,mapreduce,hadoop}, key-value store~\cite{farm,cassandra,bigtable}, machine learning,
 etc.  On the other hand, it forces the applications to reserve substantial CPU
 resources to merely perform traffic processing, which significantly raise the
 cost of running the applications.
