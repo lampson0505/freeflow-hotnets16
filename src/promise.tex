@@ -22,7 +22,7 @@
 In this section, we show the workflow of \sysname and how to 
 implement the standard RDMA Verbs API with best available data-plane mechanism.
 To achieve good portability, the container application that uses the RDMA Verbs API should not be aware of
-underlying data-plane mechanism.
+underlying data-plane mechanism. \vyas{why are you again tieing this so much to RDMA ??}
 Here we take RDMA Write, two basic RDMA operations (read and write), 
 to show how \sysname implement this operation with best data-plane mechanism available (shared-memory or real RDMA).
 
@@ -75,6 +75,12 @@ receiver, and notify the receiver when the write is finished.
      \label{fig:sys_rdma_shm}
      \caption{How \sysname implemented RDMA write in inter-host setting.} 
      \end{figure}
+
+
+\vyas{really lost in this section. it needs a lot more structure and handholding to convince 
+ me that you really have thought things through.  as it stands it sounds like  you have tried 
+to talk about two narrow/corner cases but that doesnt give me any confidence that you have a solution 
+sketch!}
 
 %%% commented 
 \iffalse

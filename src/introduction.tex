@@ -19,7 +19,8 @@ on many systems and on many types of physical networks), and offers a certain
 degree of isolation applications (via mechanisms like rate control or firewalls
 implemented in the kernel). 
 However, this very same layering makes the modern TCP/IP stack greatly
-inefficient~\cite{dcqcn,luigipapers}. 
+inefficient~\cite{dcqcn,luigipapers}.  \vyas{i would suggest shrinking this para even more  .. this might lead people 
+to think we are doing dpdk/megapipe style things} 
 
 The trend continued with virtualization, which offers even more isolation, and
 additional portability (you can pack up and move VMs at will, even live-migrate
@@ -43,7 +44,8 @@ container has no external dependencies, which makes it highly portable. The
 namespace of the container is isolated from other containers, eliminating
 worries about naming and version conflicts.  Such portability and independence
 significantly simplifies the life cycle of a containerized application, from
-testing to high availability maintenance.
+testing to high availability maintenance. \vyas{ideally i want containerization to appear in para 2 .. the rest is a bit too 
+ much scaffolding IMO} 
 
 However, this isolation and portability comes at the cost of performance. We
 illustrate this with a simple experiment.  We set up two Docker containers on a
@@ -66,8 +68,6 @@ router which connects all containers on the host via bridge network. An overlay
 network crossing multiple hosts is constructed by the software routers to
 achieve a uniform IP assignment and traffic routing on the overlay. This makes
 containers fully portable -- they can even have public IPs assigned to them. 
-
-
 
 \begin{figure}[ht]
      \centering 
@@ -126,7 +126,8 @@ a manner that is completely transparent to application developers.
 
 To achieve these seemingly conflicting goals, we observe an opportunity to
 leverage two key aspects of typical container deployments: (1) they are
-typically managed by a central orchestrator (E.g., Mesos \cite{mesos}) and (2) are typically
+typically managed by a central orchestrator (E.g., Mesos  \cite{mesos} \vyas{also add kubernetes or whatever to enure this 
+ is not mesos specific}) and (2) are typically
 deployed over managed network fabrics (e.g., a public cloud provider). Taking
 advantage of these easily available additional bits of information, we sketch a
 roadmap for an overlay-based solution  with flexible IP assignment and routing

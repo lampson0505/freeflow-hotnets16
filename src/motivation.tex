@@ -2,7 +2,7 @@
 \label{sec:motivation}
 
 Container technology has gain tremendous popularity since it enables a fast and
-less-dependent way to distribute, deploy or test applications and services.
+less-dependent way to distribute, deploy or test applications and services. \vyas{cite some industry thing showsing stats?}
 Compared with applications within processes, container provides better
 isolation. The dependencies of containerized applications are wrapped together
 with the application, makiing them highly portable: they can be easily
@@ -57,7 +57,7 @@ performance of this overlay.
 	\caption{\label{fig:overlay} The design of existing container overlay networks (Weave).}   
 \end{figure}   
 
-The key to achieve a high performance and low overhead overlay network for
+\vyas{nuke this para. this is not a background para.. belongs elsewhere} The key to achieve a high performance and low overhead overlay network for
 containers is bypassing the performance bottlenecks, including bridges, software
 routers and host OS kernel, on data-plane. Given that containers are essentially
 processes, the communication channels provided by IPC and hardware offloading
@@ -70,6 +70,7 @@ bottlenecks.
 However, the high performance must achieved without sacrificing portability,
 which is the key reason for popularity of containers. 
 
+\vyas{nuke this para too. doesnt belong in sec 2. sec2 should be purely abt problem and context. no insight on solution yet!}
 Container deployments opt for overlay-based networking since it is most
 portable: a container does not have to worry about where the other endpoint is.
 Our key insight is that the information about the location of the other endpoint
