@@ -80,6 +80,15 @@ scenario. Furthermore, all of this complexity can be hidden from the application
 by bundling it into a virtual interface, and associated code. In the next
 section, we sketch the architecture of our solution.
 
+      \begin{figure}[ht]
+      \centering 
+      \includegraphics[width=0.5\textwidth]{figures/motivation/mot_bw_cpu.pdf}      
+      \label{fig:mot_bw_cpu}
+      \caption{The relation of throughput and cpu usage. For two containers, 
+      increase the bandwidth cap between them, when bandwidth increases, 
+      cpu usage also increases. When CPU is saturated, the throughput is constrained.} 
+      \end{figure}
+
 %% To understand the network performance and overhead when containers talk via
 %% shared-memory and RDMA \footnote{In this paper, we choose RDMA as a
 %% representative hardware offloading technique, and we will consider other
