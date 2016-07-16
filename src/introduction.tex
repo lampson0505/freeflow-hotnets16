@@ -48,27 +48,26 @@ testing to high availability maintenance.
 However, this isolation and portability comes at the cost of performance. We
 illustrate this with a simple experiment.  We set up two Docker containers on a
 server (Intel Xeon 2.40GHz 4-cores CPU, 67 GB of memory, 40Gbps Mellanox CX3
-NIC, CentOS 7) with iPerf and benchmarked the network bandwidth and latency
-between them.  
+NIC, CentOS 7). We consider three ways for the containers to communicate with
+each other. 
 
-The two containers communicate using three possible modes. $(a)$ {\em Shared
-memory:} The containers can be set up to share a region of memory which can be
-used as a communication channel. This is the least isolated and the least
-portable mode of communication, since the containers must be on the same host,
-special steps must be taken during container creation, and the applications must
-be made aware of the shared memory region.
-and the application must  memory region, and use IPC calls
-for communication.
+First, we use shared memory between the containers. This requires special setup,
+to bypass the namespace isolation. We also had to write a speical application
+that used the shared memory IPC calls for communication. This mode of
+communication offers the least isolation, and the least portability. 
 
-Containers can be networked in two modes~\footnote{We ignore the bridge mode for
-simplicity.}: $(a)$ {\em Host}, in which one container binds an interface and a
-port on the host and use the host's IP to communicate, like an ordinary process.
-The containers are not truly isolated, since they must share the port space.
-$(b)$ {\em Overlay}, in which the host runs a software router which connects all
-containers on the host via bridge network. An overlay network crossing multiple
-hosts is constructed by the software routers to achieve a uniform IP assignment
-and traffic routing on the overlay. This makes containers fully portable -- they
-can even have public IPs assigned to them.
+Next, we considered two networking modes. First, the so-called {\em Host} mode
+in which one container binds an interface and a port on the host and use the
+host's IP to communicate, like an ordinary process.  The containers are not
+truly isolated, since they must share the port space.
+
+And then, the so-called {\em Overlay} mode, in which the host runs a software
+router which connects all containers on the host via bridge network. An overlay
+network crossing multiple hosts is constructed by the software routers to
+achieve a uniform IP assignment and traffic routing on the overlay. This makes
+containers fully portable -- they can even have public IPs assigned to them. 
+
+The results are shown in Figure~\ref{fig:three_modes}.
 
 \begin{figure}[ht]
      \centering 
@@ -78,25 +77,14 @@ can even have public IPs assigned to them.
      shared memory IPC.} 
 \end{figure} 
 
-In addtion, we also consider a third mode, in which containers comunicate via
-shared memory. This mode requires special configuration, and is the leat
-
-Figure~\ref{fig:three_modes} shows the median network bandwidth and latency
-between two containers in the two networking modes. The error bars show SIQR.
-
-For contrast, the third bar shows the most performant way for two applications
-on the same physical server: IPC communication via shared memory.  Note that
-while containers do not have (easy) access to this mode of communication (even
-though they are just processes), since they do not share the namespace.
-
 We make two observations from this figure. First, that the throughput and
 latency of both modes of inter-container communication is significantly worse
 than shared-memory IPC. The reason is obvious: the container communication takes
-a ``hairpin'' path through the full TCP/IP stack. Second,
-the performance of overlay networking is worse than host mode. The reason, again,
-is simple: in case of overlay networking, hairpinning happens twice, since the
-packets must traverse through the software router as well. This figure thus
-clearly illustrates the performance cost of isolation and portability.
+a ``hairpin'' path through the full TCP/IP stack. Second, the performance of
+overlay networking is worse than host mode. The reason, again, is simple: in
+case of overlay networking, hairpinning happens twice, since the packets must
+traverse through the software router as well. This figure thus clearly
+illustrates the performance cost of isolation and portability.
 
 As the popularity of container networking grows, this inefficiency must be
 addressed. On one hand, the low throughput and high latency directly impacts
@@ -106,31 +94,30 @@ etc.  On the other hand, it forces the applications to reserve substantial CPU
 resources to merely perform traffic processing, which significantly raise the
 cost of running the applications.
 
-It may seem that we have seen this movie before: virtualization suffers from
+One may argue that there is nothing new here: virtualization suffers from
 similar inefficiencies and we know how to address them using techniques like
 SR-IOV~\cite{sriov} and NetVM~\cite{netvm}.
 
 Unfortunately, these ideas cannot be directly applied to the container world.
 SR-IOV typically scales to tens of VMs per server. In typical deployments, there
 are hundreds of containers per server. The cost of supporting so many containers
-in the NIC hardware will be prohibitive. 
+in the NIC hardware will be prohibitive.  NetVM~\cite{netvm} cannot be used
+directly with containers, since it destroys portability -- it works only when
+two VMs are on the same server.  Developers prize containers especially for
+their portability: indeed, Docker's main selling point is that a containerized
+application that runs on developer's desktop will run in the cloud without any
+changes! 
 
-NetVM~\cite{netvm} cannot be used directly with containers, since it destroys
-portability -- it works only when two VMs are on the same server.
-Developers prize containers especially for their portability: indeed, Docker's
-main selling point is that a containerized application that runs on developer's
-desktop will run in the cloud without any changes! 
-
-In the above experiment, containers were on the same physical server. When
-containers are on different physical servers, things become even trickier. For
-example, such containers cannot easily use kernel bypass technologies like RDMA.
-The reason is subtle: using RDMA (i.e. to bypass the kernel) direct access to
-NICs is needed. This can only be done in the host mode -- since in the overlay
-mode, the packets have to pass through the software router.  But operating in
-the host mode means that containers on the same host share IP address, and must
-carefully divvy up port space to avoid conflicts.  This limits their portability
--- e.g. there can be only one container bound to port 80 on each physical
-server!
+%% In the above experiment, containers were on the same physical server. When
+%% containers are on different physical servers, things become even trickier. For
+%% example, such containers cannot easily use kernel bypass technologies like RDMA.
+%% The reason is subtle: using RDMA (i.e. to bypass the kernel) direct access to
+%% NICs is needed. This can only be done in the host mode -- since in the overlay
+%% mode, the packets have to pass through the software router.  But operating in
+%% the host mode means that containers on the same host share IP address, and must
+%% carefully divvy up port space to avoid conflicts.  This limits their portability
+%% -- e.g. there can be only one container bound to port 80 on each physical
+%% server!
 
 In this paper we outline a solution to address this issue.  Our ultimate vision
 is to develop a container networking solution which provides high throughput,
