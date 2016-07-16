@@ -4,13 +4,22 @@
 %network trouble shooting;
 
 \textbf{Live migration:} 
-
+This work is not focusing on live migration, but we envision that \sysname could be a key enabler
+for containers to achieve both high-performance and capability for live migration.
+Previously, high-performance mechanisms such as RDMA lacks the capability for live migration because
+the container is bond to the underlying network structure or hardware of the host.
+For example, containers have to be bond to the IP or port of the host to enable RDMA.
+However, \sysname virtualized the underlying network structure or hardware with the vNIC design.
+Since vNIC decouples the binding between containers and host structure, 
+now containers can be live migrated along vNIC.
 
 \textbf{Security and middle-box:}
 One valid concern for \sysname is how legacy can middle-boxes work for communication
 vi shared-memory or RDMA, and whether security will be broken by using shared-memory or RDMA.
 For security, \sysname would only allow shared-memory among trusted containers, for example,
-container belongs to the same vendor (e.g., running spark or storm). 
+container belongs to the same vendor (e.g., running spark or storm).
+For supporting middle-boxes (e.g. IDS/IPS), we acknowledge that further work needs to be done
+to enable them in this new communication paradigm.
 
 
 \textbf{VM environment:}
