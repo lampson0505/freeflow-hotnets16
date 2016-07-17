@@ -13,11 +13,13 @@ Netmap\cite{netmap} and VALE\cite{vale} (which is also used by ClickOS\cite{clic
 are sharing buffers and metadata between kernel and userspace to eliminate memory copies.
 However, these works actually strengthened the binding between VM and underlying host
 structures, thus they cannot satisfy the portability requirement for \sysname. 
-Also, there works is applicable only to intra-host setting, constrained by the possibility
-of shared memory.
+Also, the NetVM work is applicable only to intra-host setting,
+constrained by the possibility of shared memory. Similarly, the Netmap
+and VALE solutions are sub-optimal when the VMs/containers are located
+on the same physical machine.
 
 \textbf{RDMA and HPC}
-VMware RDMA work
+RDMA originated from the HPC world, in the form of InfiniBand. The HPC community proposed RDMA enablement solutions for virtualization~\cite{ranadive2012toward} and containerization~\cite{rdmacontainers} technologies. Additionally, the HPC community have also been using shared-memory based communication~\cite{KNEM} for intra-node communication.
 
 \textbf{General improvements}
 %low latency socket
