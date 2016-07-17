@@ -1,11 +1,12 @@
-\section{Conclusion and Discussions} \label{sec:discussion}
+\section{Conclusion and Discussion} \label{sec:discussion}
 
-In this paper, we discuss how to build a network solution for containers, named \sysname, 
-which has high performance, good portability and acceptable isolation. We sketch
-the design of \sysname which enables containers to communicate with the most efficient
-way according to their locations and hardware capabilities and keeps the decisions
-transparent to applications in containers. We are currently building \sysname, and
-we list several important considerations we are investigating at present in the following.
+In this paper, we discussed how to build a network solution for containers,
+named \sysname. It offers high performance, good portability and acceptable
+isolation. We sketched the design of \sysname which enables containers to
+communicate with the most efficient way according to their locations and
+hardware capabilities and keeps the decisions transparent to applications in
+containers. We are currently building \sysname, and we list a few important
+considerations below.
 
 \textbf{Live migration:} 
 \sysname could be a key enabler
@@ -32,14 +33,14 @@ done within the context of \sysname design.
 
 
 \textbf{Scalability of \sysname :}
-There is a potential scalability issue in the current design of overlay router in \sysname.
-Suppose overlay routers are using RDMA to transfer inter-host data, one overlay router 
-will maintain one RDMA queue pair for each pair of containers, if one of containers is on 
-the same host as the overlay router. Therefore, the number of queue pairs one overlay router
-maintains can be up to $O(m \times N)$, if $m$ is the number of containers on the same host
-and $N$ is the number of containers in other hosts. To solve this problem, we need to consider
-how to multiplex a single queue pair on overlay routers for multiple container sessions 
-in the future work. 
+Scalability of \sysname is a major focus of our ongoing work. The design proposed
+in \S\ref{sec:design} has a few potential scalability challenges. For example,
+if overlay routers in \sysname may end up having to maintain per-flow state if
+they communicate with co-located containers using shared memory and with remote
+routers using RDMA -- if done n\"{a}ively, the router may end up maintaining
+one queue pair for each pair of communicating containers.  To solve this
+problem, we need to to multiplex a single queue pair on overlay routers for
+multiple container sessions.
 
 
 %\textbf{Network trouble shooting:}
