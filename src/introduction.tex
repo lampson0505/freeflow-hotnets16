@@ -51,15 +51,18 @@ Unfortunately, containers too suffer the veritable curse of having to sacrifice
 one or more of performance, isolation, and portability.  To understand these
 potential performance bottlenecks, we set up a simple experiment (more details
 in Section~\ref{sec:background}).  We set up two Docker containers on a server
-(Intel Xeon 2.40GHz 4-cores CPU, 67 GB of memory, 40Gbps Mellanox CX3 NIC,
+(Intel Xeon E5-2609 2.40GHz 4-cores CPU, 67 GB of memory, 40Gbps Mellanox CX3 NIC,
 CentOS 7). We consider three ways for the containers to communicate with each
-other: (1) {\em Shared Memory:} This requires special setup, to bypass the
+other: (1) {\em Shared Memory:} This requires special setup\footnote{We 
+setup the shared memory data transfer through \texttt{shared memory object} in
+shared IPC namespace and measuring the time to pass the pointer and make one copy
+of the data.}, to bypass the
 namespace isolation, and offers the least isolation, and the least portability;
 (2) {\em Host  mode} in which one container binds an interface and a port on the
 host and use the host's IP to communicate, like an ordinary process and hence
 are not truly isolated as they must share the port space; and (3)  {\em Overlay
 mode} in which the host runs a software router which connects all containers on
-the host via  a bridge network and the software routers enable overlay routing
+the host via a bridge network and the software routers enable overlay routing
 across multiple hosts to enable maximum portability as  each container can even
 have public IPs assigned.
 
