@@ -31,6 +31,9 @@ Our design of the network library is shown in Figure~\ref{fig:netlib}.
 
 \subsection{The network orchestrator}
 
+%%% commented 
+\iffalse
+
 Our goal is to design a complete network solution which can enable containers
 to communicate with portability, isolation and high performance at the same time.
 Basically, this solution has three major components: control-plane, data-plane 
@@ -161,8 +164,4 @@ like the detailed design in sec 4 rather than the arch overview for sec 3. i rea
 %Otherwise, the sender's local network agent will perform an actual RDMA write
 %with the receiver's local network agent, and the latter will put the received data into a shared-memory and pass it to the receiver container via its virtual NIC.
 
-
-
-
-
-
+\fi

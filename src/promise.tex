@@ -1,5 +1,28 @@
-\section{System to Build} \label{sec:promise}
+\section{Preliminary Implementation} \label{sec:implementation}
 
+We have implemented a prototype of \sysname on a testbed of clustered bare-metal
+machines (Intel Xeon 2.40GHz 4-cores CPU, 67 GB of memory, 40Gbps Mellanox CX3
+NIC, CentOS 7). The prototype will select the most
+efficient data-plane mechanism based on the location of two containers: 
+if the two containers are intra-host, shared-memory mechanism will be selected for data
+transfer, and if the two containers are inter-host, RDMA will be selected.
+We implemented the shared-memory via multiplexing \texttt{IPC namespace}, and enabled
+containers to use RDMA by using the \texttt{host mode}.
+We evaluated our prototype and compare it with state-of-the-art container overlay network
+ - \texttt{Weave}, and shown that the prototype
+can achieve higher throughput, lower cpu usage and smaller latency for both intra-host
+and inter-host cases. The measurement result is presented in Figure~\ref{fig:sys_eval_proto}
+
+     \begin{figure}[ht]
+     \centering 
+     \includegraphics[width=0.45\textwidth]{figures/system/eval_proto.pdf}
+     \label{fig:sys_eval_proto}
+     \caption{Compare \sysname prototype with weave.} 
+     \end{figure}
+
+
+%%% commented 
+\iffalse
 
 In this section, we show our roadmap to realize \sysname and a preliminary 
 implementation.
@@ -102,30 +125,7 @@ between RDMA programs and RDMA NICs. It forwards Write and Read requests to
 network agent and notifies the programs when a Write or Read request is finished
 by network agent. 
 
-\subsection{Prototype}
-We have implemented a prototype of \sysname on a testbed of clustered bare-metal
-machines (Intel Xeon 2.40GHz 4-cores CPU, 67 GB of memory, 40Gbps Mellanox CX3
-NIC, CentOS 7). The prototype will select the most
-efficient data-plane mechanism based on the location of two containers: 
-if the two containers are intra-host, shared-memory mechanism will be selected for data
-transfer, and if the two containers are inter-host, RDMA will be selected.
-We implemented the shared-memory via multiplexing \texttt{IPC namespace}, and enabled
-containers to use RDMA by using the \texttt{host mode}.
-We evaluated our prototype and compare it with state-of-the-art container overlay network
- - \texttt{Weave}, and shown that the prototype
-can achieve higher throughput, lower cpu usage and smaller latency for both intra-host
-and inter-host cases. The measurement result is presented in Figure~\ref{fig:sys_eval_proto}
 
-     \begin{figure}[ht]
-     \centering 
-     \includegraphics[width=0.45\textwidth]{figures/system/eval_proto.pdf}
-     \label{fig:sys_eval_proto}
-     \caption{Compare \sysname prototype with weave.} 
-     \end{figure}
-
-
-%%% commented 
-\iffalse
 \para{Real RDMA in inter-host setting:} First we show 
 how \sysname implemented RDMA Write in inter-host setting
 as shown in Figure~\ref{fig:sys_rdma_rdma}. 
