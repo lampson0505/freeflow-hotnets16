@@ -1,21 +1,40 @@
 \section{Design} \label{sec:design}
 
-\subsection{Design of FreeFlow}
+This section presents the designs of \sysname's major components. We introduce
+the requirements and concerns in the designs of \sysname's network library, overlay router and network orchestrator, explaining what design choices 
+\sysname makes and what the reasons are behind these design choices.
 
-This section presents the high-level design of \sysname. We introduce
-the requirements and concerns in the designs of control-plane, data-plane
-and network access layer, and explain what design choices \sysname makes 
-and what the reasons are behind these design choices.
+\subsection{The network library of FreeFlow}
 
-\subsection{Overview}
+\begin{figure}[t!] 
+     \centering 
+     \includegraphics[width=3.0in]{figures/netlib.pdf} 
+    \caption{\label{fig:netlib} The internal structure of \sysname's network library.} 
+\end{figure} 
+
+The network library of \sysname is the key component which makes
+the actual communication paradigm transparent to applications in the containers.
+It has inherently has two goals to achieve: (1) supporting most common network
+APIs, such as Socket (TCP/IP), Verbs (RDMA), MPI (parallel computing) and so on;
+and (2) selecting the most efficient communication paradigm no matter which network API is used. 
+
+One straightforward way to build the network library is to develop several
+independent libraries each of which deals with a specific network API. 
+For instance, we design a new \texttt{libsocket} for support Socket API and 
+a new \texttt{libibverbs} for RDMA Verbs API. However, this method will require
+tremendous effort to implement and maintain multiple libraries and cannot take
+advantage of existing efforts in this domain (we will explain next).
+
+Our design of the network library is shown in Figure~\ref{fig:netlib}. 
+
+\subsection{The overlay router of FreeFlow}
+
+\subsection{The network orchestrator}
 
 Our goal is to design a complete network solution which can enable containers
 to communicate with portability, isolation and high performance at the same time.
 Basically, this solution has three major components: control-plane, data-plane 
 and networking abstraction. 
-
-\vyas{is this referring to ANY solution or OUR solution. im confused. also this ctr/data/abstraction is again 
-a bit misleading .. its true for ANY network model, what is unique to container world here?}
 
 
 A \textbf{control-plane} handles IP address assignment, routing and manages global states of a container network.
