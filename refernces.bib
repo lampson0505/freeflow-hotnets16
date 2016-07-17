@@ -336,13 +336,86 @@ doi={10.1109/PDP.2009.43},
 ISSN={1066-6192},
 month={Feb},}
 
-@article{mpi-rdma,
-	title={High performance RDMA-based MPI implementation over InfiniBand},
-	author={Liu, Jiuxing and Wu, Jiesheng and Panda, Dhabaleswar K},
-	journal={International Journal of Parallel Programming},
-	volume={32},
-	number={3},
-	pages={167--198},
-	year={2004},
-	publisher={Springer}
+@inproceedings{lls,
+title={Reducing Network Latency in Linux},
+author={Brandeburg, Jesse},
+booktitle={Linux Plumbers Conference},
+year={2012},
+}
+
+@Misc{rfc7609,
+  Title                    = {{IBM's Shared Memory Communications over RDMA (SMC-R) Protocol}},
+
+  Author                   = {M. Fox and C. Kassimis and J. Stevens},
+  HowPublished             = {RFC 7609 (Informational)},
+  Month                    = aug,
+  Year                     = {2015},
+
+  Number                   = {7609},
+  Organization             = {Internet Engineering Task Force},
+  Publisher                = {IETF},
+  Series                   = {Request for Comments},
+  Url                      = {http://www.ietf.org/rfc/rfc7609.txt}
+}
+
+@Article{mpi-rdma,
+  Title                    = {High Performance {RDMA}-Based {MPI} Implementation over InfiniBand},
+  Author                   = {Liu, Jiuxing and Wu, Jiesheng and Panda, Dhabaleswar K.},
+  Journal                  = {International Journal of Parallel Programming},
+  Year                     = {2004},
+  Number                   = {3},
+  Pages                    = {167--198},
+  Volume                   = {32},
+
+  Abstract                 = {Although InfiniBand Architecture is relatively new in the high performance computing area, it offers many features which help us to improve the performance of communication subsystems. One of these features is Remote Direct Memory Access (RDMA) operations. In this paper, we propose a new design of MPI over InfiniBand which brings the benefit of RDMA to not only large messages, but also small and control messages. We also achieve better scalability by exploiting application communication pattern and combining send/receive operations with RDMA operations. Our RDMA-based MPI implementation achieves a latency of 6.8 $\mu$sec for small messages and a peak bandwidth of 871 million bytes/sec. Performance evaluation shows that for small messages, our RDMA-based design can reduce the latency by 24{\%}, increase the bandwidth by over 104{\%}, and reduce the host overhead by up to 22{\%} compared with the original design. For large data transfers, we improve performance by reducing the time for transferring control messages. We have also shown that our new design is beneficial to MPI collective communication and NAS Parallel Benchmarks.},
+  Doi                      = {10.1023/B:IJPP.0000029272.69895.c1},
+  ISSN                     = {1573-7640},
+  Url                      = {http://dx.doi.org/10.1023/B:IJPP.0000029272.69895.c1}
+}
+
+@inproceedings{rsockets,
+  title={Rsockets},
+  author={Hefty, Sean},
+  booktitle={OpenFabris International Workshop, Monterey, CA, USA},
+  year={2012}
+}
+
+@INPROCEEDINGS{sdp,
+author={P. Balaji and S. Narravula and K. Vaidyanathan and S. Krishnamoorthy and J. Wu and D. K. Panda},
+booktitle={Performance Analysis of Systems and Software, 2004 IEEE International Symposium on - ISPASS},
+title={Sockets Direct Protocol over InfiniBand in clusters: is it beneficial?},
+year={2004},
+pages={28-35},
+keywords={benchmark testing;message passing;performance evaluation;transport protocols;virtual storage;workstation clusters;InfiniBand architecture;Parallel Virtual File System;Sockets Direct Protocol;cluster systems;file transfers;message transfers;microbenchmarks;multitier data center;Application software;Communication industry;Computer architecture;Context;Delay;File systems;Information science;Kernel;Protocols;Sockets},
+doi={10.1109/ISPASS.2004.1291353},
+month={},
+}
+
+@inproceedings{XenLoop,
+ author = {Wang, Jian and Wright, Kwame-Lante and Gopalan, Kartik},
+ title = {XenLoop: A Transparent High Performance Inter-vm Network Loopback},
+ booktitle = {Proceedings of the 17th International Symposium on High Performance Distributed Computing},
+ series = {HPDC '08},
+ year = {2008},
+ isbn = {978-1-59593-997-5},
+ location = {Boston, MA, USA},
+ pages = {109--118},
+ numpages = {10},
+ url = {http://doi.acm.org/10.1145/1383422.1383437},
+ doi = {10.1145/1383422.1383437},
+ acmid = {1383437},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {inter-vm communication, virtual machine, xen},
+}
+
+@INPROCEEDINGS{container-networking-modules,
+author={J. Claassen and R. Koning and P. Grosso},
+booktitle={NOMS 2016 - 2016 IEEE/IFIP Network Operations and Management Symposium},
+title={Linux containers networking: Performance and scalability of kernel modules},
+year={2016},
+pages={713-717},
+keywords={Bridges;Containers;Kernel;Linux;Performance evaluation;Switches;Testing},
+doi={10.1109/NOMS.2016.7502883},
+month={April},
 }
