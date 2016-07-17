@@ -21,7 +21,7 @@ individual container. A modern web service with multiple layers (load balancers,
 web servers, in-memory caches and backend databases) is deployed with multiple
 containers in each layer.  These containers are usually deployed into a
 multi-host server cluster, and the deployment is usually controlled by a cluster
-orchestrator, e.g. Mesos~\cite{mesos} or Kubernetes~\cite{xxx}.  Such architecture makes it easier to
+orchestrator, e.g. Mesos~\cite{mesos} or Kubernetes~\cite{kubernetes}.  Such architecture makes it easier to
 upgrade the nodes or mitigate failures, since a stopped container can be quickly
 replaced by a new one on the same or a different host.  Working as a single
 application, containers need to exchange data, and the network performance has a
