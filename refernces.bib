@@ -18,9 +18,14 @@
 }
 
 @inproceedings{dcqcn,
+<<<<<<< HEAD
 	title={Congestion control for large-scale RDMA deployments},
 	author={Zhu, Yibo and Eran, Haggai and Firestone, Daniel and Guo, Chuanxiong and Lipshteyn, Marina and Liron, Yehonatan and Padhye, 
 	itendra and Raindel, Shachar and Yahia, Mohamad Haj and Zhang, Ming},
+=======
+	title={Congestion control for large-scale {RDMA} deployments},
+	author={Zhu, Yibo and Eran, Haggai and Firestone, Daniel and Guo, Chuanxiong and Lipshteyn, Marina and Liron, Yehonatan and Padhye, Jitendra and Raindel, Shachar and Yahia, Mohamad Haj and Zhang, Ming},
+>>>>>>> dd3149c2302ecdc9762f6c1fc610f28b59dfa8ed
 	booktitle={ACM SIGCOMM Computer Communication Review},
 	volume={45},
 	number={4},
@@ -66,7 +71,7 @@
 
 @misc{rdma,
 	author = {Mellanox},
-	title = {RDMA Aware Networks Programming User Manual},
+	title = {{RDMA} Aware Networks Programming User Manual},
 	year = {Rev 1.7}, 
 	howpublished = "\url{http://www.mellanox.com/}"}
 
@@ -239,6 +244,13 @@
 	year = {FreeBDS 10.3 Rel}, 
 	howpublished = "\url{http://www.freebsd.org/cgi/man.cgi}"}
 
+@inproceedings{rdmacontainers,
+title={Containing {RDMA} and High Performance Computing},
+author={Liss, Liran},
+booktitle={ContainerCon},
+year={2015}
+}
+
 @article{docker:linjournal,
  author = {Merkel, Dirk},
  title = {Docker: Lightweight Linux Containers for Consistent Development and Deployment},
@@ -273,3 +285,27 @@
 	year={2015}
 }
 
+@article{ranadive2012toward,
+  title={Toward a paravirtual {vRDMA} device for {VMware} {ESXi} guests},
+  author={Ranadive, Adit and Davda, Bhavesh},
+  journal={VMware Technical Journal, Winter 2012},
+  volume={1},
+  number={2},
+  year={2012}
+}
+
+@Article{KNEM,
+  Title                    = {KNEM: A generic and scalable kernel-assisted intra-node {MPI} communication framework },
+  Author                   = {Brice Goglin and Stéphanie Moreaud},
+  Journal                  = {Journal of Parallel and Distributed Computing },
+  Year                     = {2013},
+  Number                   = {2},
+  Pages                    = {176 - 188},
+  Volume                   = {73},
+
+  Abstract                 = {The multiplication of cores in today’s architectures raises the importance of intra-node communication in modern clusters and their impact on the overall parallel application performance. Although several proposals focused on this issue in the past, there is still a need for a portable and hardware-independent solution that addresses the requirements of both point-to-point and collective \{MPIoperations\} inside shared-memory computing nodes. This paper presents the KNEM module for the Linux kernel that provides MPI implementations with a flexible and scalable interface for performing kernel-assisted single-copy data transfers between local processes. It enables high-performance communication within most existing MPI implementations and brings significant application performance improvements thanks to more efficient point-to-point and collective operations. },
+  Doi                      = {http://dx.doi.org/10.1016/j.jpdc.2012.09.016},
+  ISSN                     = {0743-7315},
+  Keywords                 = {MPI},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S0743731512002316}
+}
