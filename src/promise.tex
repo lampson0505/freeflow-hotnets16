@@ -1,7 +1,7 @@
 \section{Preliminary Implementation} \label{sec:implementation}
 
 We have implemented a prototype of \sysname on a testbed of clustered bare-metal
-machines (Intel Xeon 2.40GHz 4-cores CPU, 67 GB RAM, 40Gbps Mellanox CX3 NIC,
+machines (Intel Xeon E5-2609 2.40GHz 4-cores CPU, 67 GB RAM, 40Gbps Mellanox CX3 NIC,
 CentOS 7). The prototype selects the most efficient data-plane mechanism based
 on the location of two containers: if the two containers are intra-host,
 shared-memory mechanism will be selected for data transfer, and if the two

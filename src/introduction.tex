@@ -50,8 +50,7 @@ application, from testing to high availability maintenance.
 Unfortunately, containers too suffer the veritable curse of having to sacrifice
 one or more of performance, isolation, and portability. To understand these
 potential performance bottlenecks, we conducted a simple experiment.  We set up
-two Docker containers on a server\footnote{Intel Xeon E5-2609 2.40GHz 4-core,
-67GB RAM, 40Gbps Mellanox CX3 NIC, CentOS 7}. We consider three
+two Docker containers on a server\footnote{See Section~\ref{sec:implementation} for HW and SW details}. We consider three
 ways for the containers to communicate with each other: (1) {\em Shared Memory:}
 This requires special setup\footnote{We setup the shared memory data transfer
 through \texttt{shared memory object} in shared IPC namespace and measuring the
