@@ -37,8 +37,7 @@ application, from testing to high availability maintenance.
 \begin{figure}[th]
      \centering 
      \includegraphics[width=0.5\textwidth]{figures/intro/intro_exist2.pdf} 
-     \caption{Performance of two modes of container networking, compared to
-     shared memory IPC.} 
+     \caption{Performance comparison of two modes of container networking and shared memory IPC.} 
      \label{fig:three_modes} 
 \end{figure} 
 \begin{figure*} [t]
@@ -50,18 +49,18 @@ application, from testing to high availability maintenance.
 Unfortunately, containers too suffer the veritable curse of having to sacrifice
 one or more of performance, isolation, and portability. To understand these
 potential performance bottlenecks, we conducted a simple experiment.  We set up
-two Docker containers on a server\footnote{See Section~\ref{sec:implementation} for HW and SW details}. We consider three
+two Docker containers on a single server\footnote{See Section~\ref{sec:implementation} for HW and SW details}. We consider three
 ways for the containers to communicate with each other: (1) {\em Shared Memory:}
 This requires special setup\footnote{We setup the shared memory data transfer
-through \texttt{shared memory object} in shared IPC namespace and measuring the
-time to pass the pointer and make one copy of the data.}, to bypass the
+through \texttt{shared memory object} in a shared IPC namespace and measure the
+time to pass the pointer and make one copy of the data.} to bypass the
 namespace isolation, and offers the least isolation, and the least portability;
 (2) {\em Host mode:} in which a container binds an interface and a port on the
-host and use the host's IP to communicate, like an ordinary process and hence
+host and uses the host's IP to communicate, like an ordinary process. Hence,
 containers are not truly isolated as they must share the port space; and (3)
 {\em Overlay mode:} in which the host runs a software router which connects all
-containers on the host via a bridge network and the software routers enable
-overlay routing across multiple hosts to enable maximum portability as each
+containers on the host via a bridge network.  The software routers enable
+overlay routing across multiple hosts to provide maximum portability as each
 container can even have public IPs assigned.
 
 Figure~\ref{fig:three_modes} is a telling demonstration of the fundamental
@@ -81,7 +80,7 @@ As the popularity of container networking grows, this inefficiency must be
 addressed. On one hand, the low throughput and high latency directly impacts the
 overall performance of large scale distributed systems, such as big data
 analytics~\cite{varys,orchestra,reining,chowdhury}, key-value
-store~\cite{farm}, machine learning, etc. On the other hand,
+stores~\cite{farm}, machine learning frameworks, etc. On the other hand,
 it forces the applications to reserve substantial CPU resources to merely
 perform traffic processing, which significantly raises the cost of running the
 applications.
