@@ -3,49 +3,45 @@
 %NetVM  \cite{netvm}
 %DPDK and NetMap \cite{netmap}
 
-\textbf{Inter-VM Communication:} 
-The tussle between isolation and performance is not unique to containers.
-In the field of Inter-VM Communication, there are several works that provides
-high-performance by removing some of the isolation constraints.
-For example, NetVM\cite{netvm} provides a shared-memory framework that
-exploits the DPDK library to provide zero-copy delivery between VMs.
-Netmap\cite{netmap} and VALE\cite{vale} (which is also used by ClickOS\cite{clickos}) 
-are sharing buffers and metadata between kernel and userspace to eliminate memory copies.
-However, these works actually strengthened the binding between VM and underlying host
-structures, thus they cannot satisfy the portability requirement for \sysname. 
-Also, the NetVM work is applicable only to intra-host setting,
-constrained by the possibility of shared memory. Similarly, the Netmap
-and VALE solutions are sub-optimal when the VMs/containers are located
-on the same physical machine.
+\textbf{Inter-VM Communication:} The tussle between isolation and performance is
+not unique to containers.  The issue has also been studied in the context of
+Inter-VM Communication.  For example, NetVM\cite{netvm} provides a shared-memory
+framework that exploits the DPDK library to provide zero-copy delivery between
+VMs.  Netmap\cite{netmap} and VALE\cite{vale} (which is also used by
+ClickOS\cite{clickos}) are sharing buffers and metadata between kernel and
+userspace to eliminate memory copies.  However, these systems cannot be directly
+used in containerized setting.  For example, the NetVM work is applicable only
+to intra-host setting, constrained by the possibility of shared memory. It does
+not handle inter-host communication.  Similarly, the Netmap and VALE solutions
+are sub-optimal when the VMs/containers are located on the same physical
+machine: shared memory provides a much more efficient communication mechanism.
 
-\textbf{RDMA and HPC:} RDMA originated from the HPC world, in the form of InfiniBand. The HPC
-community proposed RDMA enablement solutions for
+\textbf{RDMA and HPC:} RDMA originated from the HPC world, in the form of
+InfiniBand. The HPC community proposed RDMA enablement solutions for
 virtualization~\cite{ranadive2012toward} and
-containerization~\cite{rdmacontainers} technologies. These solutions
-are addressing the challenges in exposing RDMA interfaces to
-virtualized/containerized applications, treating each VM/container as
-if it resides on a different node.
+containerization~\cite{rdmacontainers} technologies. These solutions are
+addressing the challenges in exposing RDMA interfaces to
+virtualized/containerized applications, treating each VM/container as if it
+resides on a different node.
 
 The HPC community have also been using shared-memory based
-communication~\cite{KNEM,MPI:p:MPI,HybridMPI} for intra-node
-communication. These solutions are targeting MPI processes residing on
-a shared non-containerized, non-virtualized machine. They do not
-attempt to pierce the virtualization/containerization for additional
-performance.
+communication~\cite{KNEM,MPI:p:MPI,HybridMPI} for intra-node communication.
+These solutions are targeting MPI processes residing on a shared
+non-containerized, non-virtualized machine. They do not attempt to pierce the
+virtualization/containerization for additional performance.
 
-The same concepts described for \sysname can also be applicable for
-MPI run-time libraries. This can be achieved either by layering the
-MPI implementation on top of \sysname, or by implementing a similar
-solution in the MPI run-time library.
+The same concepts described for \sysname can also be applicable for MPI run-time
+libraries. This can be achieved either by layering the MPI implementation on top
+of \sysname, or by implementing a similar solution in the MPI run-time library.
 
-\textbf{General improvements:} A significant amount of work has been
-spent attempting to improve the performance of the networking
-stack~\cite{lls,rfc7609,XenLoop} in various scenarios. However, none
-of them were aiming at optimizing the performance of networking
-communications between co-residing containers. While the performance
-of intra-node communication for containers was identified as relevant
-before~\cite{container-networking-modules}, to our knowledge there was
-no attempt at addressing this challenge.
+\textbf{General improvements:} A significant amount of work has been spent
+attempting to improve the performance of the networking
+stack~\cite{lls,rfc7609,XenLoop} in various scenarios. However, none of them
+were aiming at optimizing the performance of networking communications between
+co-residing containers. While the performance of intra-node communication for
+containers was identified as relevant
+before~\cite{container-networking-modules}, to our knowledge there was no
+attempt at addressing this challenge.
 
 %low latency socket
 
