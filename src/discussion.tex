@@ -1,31 +1,28 @@
 \section{Discussions} \label{sec:discussion}
 
-%Live migrations; security and middle-box; VM environments; 
-%network trouble shooting;
-
 \textbf{Live migration:} 
-This work is not focusing on live migration, but we envision that \sysname could be a key enabler
-for containers to achieve both high-performance and capability for live migration.
-Previously, high-performance mechanisms such as RDMA lacks the capability for live migration because
-the container is bond to the underlying network structure or hardware of the host.
-For example, containers have to be bond to the IP or port of the host to enable RDMA.
-However, \sysname virtualized the underlying network structure or hardware with the vNIC design.
-Since vNIC decouples the binding between containers and host structure, 
-now containers can be live migrated along vNIC.
+\sysname could be a key enabler
+for containers to achieve both high-performance and capability for live
+migration. It will require the network library to interact with the orchestrator
+more frequently, and may require maintaining additional per-connection state
+within the library. We are currently investigating this further.
 
-\textbf{Security and middle-box:}
-One valid concern for \sysname is how legacy can middle-boxes work for communication
-vi shared-memory or RDMA, and whether security will be broken by using shared-memory or RDMA.
-For security, \sysname would only allow shared-memory among trusted containers, for example,
-container belongs to the same vendor (e.g., running spark or storm).
-For supporting middle-boxes (e.g. IDS/IPS), we acknowledge that further work needs to be done
-to enable them in this new communication paradigm.
+\textbf{Security and middle-box:} One valid concern for \sysname is how legacy
+middle-boxes will work for communication via shared-memory or RDMA, and whether
+security will be broken by using shared-memory or RDMA.  We do not yet have
+complete answer to this issue. We envision that for security, \sysname would
+only allow shared-memory among trusted containers, for example, container
+belongs to the same vendor (e.g., running spark or storm).  We are investigating
+how best to support existing middle-boxes (e.g. IDS/IPS) under \sysname.
 
 
 \textbf{VM environment:}
-So far our evaluation and prototype is based on containers running on bare-metal. 
-But we believe our design is also general for containers deployed inside VMs, and 
-we will extend our prototype to support this case in future works.
+So far our evaluation and prototype is based on containers running on
+bare-metal.  But our design easily generalizes to containers deployed inside
+VMs. Some issues, such as efficient inter-VM communication (perhaps using
+NetVM~\cite{netvm}) need to be addressed, but we believe that it can be easily
+done within the context of \sysname design.
+
 
 \textbf{Scalability of \sysname :}
 
