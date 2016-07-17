@@ -1,4 +1,11 @@
-\section{Discussions} \label{sec:discussion}
+\section{Conclusion and Discussions} \label{sec:discussion}
+
+In this paper, we discuss how to build a network solution for containers, named \sysname, 
+which has high performance, good portability and acceptable isolation. We sketch
+the design of \sysname which enables containers to communicate with the most efficient
+way according to their locations and hardware capabilities and keeps the decisions
+transparent to applications in containers. We are currently building \sysname, and
+we list several important considerations we are investigating at present in the following.
 
 \textbf{Live migration:} 
 \sysname could be a key enabler
@@ -25,6 +32,15 @@ done within the context of \sysname design.
 
 
 \textbf{Scalability of \sysname :}
+There is a potential scalability issue in the current design of overlay router in \sysname.
+Suppose overlay routers are using RDMA to transfer inter-host data, one overlay router 
+will maintain one RDMA queue pair for each pair of containers, if one of containers is on 
+the same host as the overlay router. Therefore, the number of queue pairs one overlay router
+maintains can be up to $O(m \times N)$, if $m$ is the number of containers on the same host
+and $N$ is the number of containers in other hosts. To solve this problem, we need to consider
+how to multiplex a single queue pair on overlay routers for multiple container sessions 
+in the future work. 
+
 
 %\textbf{Network trouble shooting:}
 
