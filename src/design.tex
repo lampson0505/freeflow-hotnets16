@@ -36,7 +36,7 @@ and DaoliNet use centralized routing planes based on OpenFlow and OVS.
 A \textbf{data-plane} delivers data from sender containers to receiver 
 containers. \sysname's data-plane should always achieve a good trade-off
 between isolation, portability and performance. 
-As introduced in \S\ref{sec:motivation}, there are many data-plane mechanisms
+As introduced in \S\ref{sec:background}, there are many data-plane mechanisms
 for two containers, such as shared-memory (intro-host), TCP/IP, DPDK, RDMA, etc..
 Different mechanisms have different properties on portability, isolation and 
 performance. Therefore, we need to decide is to choose a single mechanism, or
@@ -98,7 +98,7 @@ We choose to provide a single data transfer API which is RDMA Verbs for two
 reasons. First of all, RDMA Verbs is flexible for upper-layer APIs.
 RDMA Verbs is a general message-passing API which can 
 easily support multiple API semantics on its top. There are already libraries
-available to translate TCP/IP~\cite{?} and MPI APIs~\cite{?} to RDMA Verbs 
+available to translate TCP/IP~\cite{rfc7609,rsockets,sdp} and MPI APIs~ \cite{mpi-rdma} to RDMA Verbs 
 semantics. 
 Second, RDMA Verbs is also flexible to under-layer data-plane mechanism. 
 The actual data-plane of RDMA Verbs can be either RDMA enabled networks and 
