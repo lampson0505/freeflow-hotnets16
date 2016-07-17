@@ -49,33 +49,34 @@ application, from testing to high availability maintenance.
 
 Unfortunately, containers too suffer the veritable curse of having to sacrifice
 one or more of performance, isolation, and portability. To understand these
-potential performance bottlenecks, we conducted a simple experiment (more details
-in Section~\ref{sec:background}). We set up two Docker containers on a server
-(Intel Xeon E5-2609 2.40GHz 4-cores CPU, 67 GB of memory, 40Gbps Mellanox CX3 NIC,
-CentOS 7). We consider three ways for the containers to communicate with each
-other: (1) {\em Shared Memory:} This requires special setup\footnote{We 
-setup the shared memory data transfer through \texttt{shared memory object} in
-shared IPC namespace and measuring the time to pass the pointer and make one copy
-of the data.}, to bypass the
+potential performance bottlenecks, we conducted a simple experiment.  We set up
+two Docker containers on a server\footnote{Intel Xeon E5-2609 2.40GHz 4-core,
+67GB RAM, 40Gbps Mellanox CX3 NIC, CentOS 7}. We consider three
+ways for the containers to communicate with each other: (1) {\em Shared Memory:}
+This requires special setup\footnote{We setup the shared memory data transfer
+through \texttt{shared memory object} in shared IPC namespace and measuring the
+time to pass the pointer and make one copy of the data.}, to bypass the
 namespace isolation, and offers the least isolation, and the least portability;
 (2) {\em Host mode:} in which a container binds an interface and a port on the
 host and use the host's IP to communicate, like an ordinary process and hence
-containers are not truly isolated as they must share the port space; and (3) {\em Overlay
-mode:} in which the host runs a software router which connects all containers on
-the host via a bridge network and the software routers enable overlay routing
-across multiple hosts to enable maximum portability as each container can even
-have public IPs assigned.
+containers are not truly isolated as they must share the port space; and (3)
+{\em Overlay mode:} in which the host runs a software router which connects all
+containers on the host via a bridge network and the software routers enable
+overlay routing across multiple hosts to enable maximum portability as each
+container can even have public IPs assigned.
 
 Figure~\ref{fig:three_modes} is a telling demonstration of the fundamental
-tussle between portability, isolation, and performance. We make two
-observations from this figure. First, that the throughput and latency of both
-modes of inter-container communication is significantly worse than
-shared-memory IPC. The reason is obvious: the container communication takes a
-``hairpin'' path through the full TCP/IP stack. Second, the performance of
-overlay networking is worse than host mode. The reason, again, is simple: in
-case of overlay networking, hairpinning happens twice, since the packets must
-traverse through the software router as well. This figure thus clearly
-illustrates the performance cost of isolation and portability.
+tussle between portability, isolation, and performance. We make two observations
+from this figure. First, the throughput and latency of host and overlay modes of
+inter-container communication are significantly worse than the throughpurt and
+latency of shared memory based communication.  The reason is obvious: both host
+and overlay modes require a ``hairpin'' path through the full TCP/IP stack. 
+
+Second, the performance of overlay networking is worse than host mode. The
+reason, again, is simple: in case of overlay networking, hairpinning happens
+twice, since the packets must traverse through the software router as well. This
+figure thus clearly illustrates the performance cost of isolation and
+portability.
 
 As the popularity of container networking grows, this inefficiency must be
 addressed. On one hand, the low throughput and high latency directly impacts the
@@ -96,11 +97,12 @@ prohibitive. NetVM~\cite{netvm} cannot be used directly with containers, since
 it destroys portability -- it works only when two VMs are on the same server.
 Developers prize containers especially for their portability: indeed, one of the
 main selling points of containerization is that a containerized application that
-runs on developer's desktop will run in the cloud without any changes! 
+runs on developer's desktop will run in the cloud without any
+changes!~\cite{docker-marketing-brag}. 
 
-In this paper we outline a solution to address this issue. Our ultimate vision
-is to develop a container networking solution which provides high throughput,
-low latency and negligible overhead and fully preserves container portability in
+In this paper we outline a solution, called \sysname to address this issue. Our vision
+is to develop a container networking solution that provides high throughput,
+low latency and negligible CPU overhead and fully preserves container portability in
 a manner that is completely transparent to application developers. 
 
 To achieve these seemingly conflicting goals, we observe an opportunity to

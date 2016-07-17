@@ -1,8 +1,6 @@
 \section{Design} \label{sec:design}
 
-This section presents the designs of \sysname's major components. We introduce
-the requirements and concerns in the designs of \sysname's network library, overlay router and network orchestrator, explaining what design choices 
-\sysname makes and what the reasons are behind these design choices.
+This section presents the designs of \sysname's major components. 
 
 \subsection{The network library of FreeFlow}
 \label{subsec:netlib}
@@ -13,41 +11,49 @@ the requirements and concerns in the designs of \sysname's network library, over
     \caption{\label{fig:netlib} The internal structure of \sysname's network library. The gray box is the built by \sysname.} 
 \end{figure} 
 
-The network library of \sysname is the key component which makes
-the actual communication paradigm transparent to applications in the containers.
-It has inherently has two goals to achieve: (1) supporting most common network
-APIs, such as Socket (TCP/IP), Verbs (RDMA), MPI (parallel computing) and so on;
-and (2) selecting the most efficient communication paradigm no matter which network API is used. 
+The network library of \sysname is the key component which makes the actual
+communication paradigm transparent to applications in the containers.  It has
+two goals: (1) supporting most common network APIs, such as Socket (TCP/IP),
+Verbs (RDMA), MPI (parallel computing) and so on; and (2) selecting the most
+efficient communication paradigm no matter which network API is used. 
 
 One straightforward way to build the network library is to develop several
-independent libraries each of which deals with a specific network API. 
-For instance, we design a new \texttt{libsocket} for support Socket API and 
-a new \texttt{libibverbs} for RDMA Verbs API. However, this method will require
-tremendous effort to implement and maintain multiple libraries and cannot take
-advantage of existing efforts in this domain (we will explain next).
+independent libraries each of which deals with a specific network API.  For
+instance, we design a new \texttt{libsocket} for support Socket API and a new
+\texttt{libibverbs} for RDMA Verbs API. However, writing different libraries is
+clearly suboptimal. Instead, as shown in  Figure~\ref{fig:netlib}, we merely
+develop a new library for RDMA API, and use existing ``translation'' libraries
+such as \cite{rsockets,sdp,rfc7609,mpi-rdma} to support socket and MPI APIs
+atop the RDMA API. Note that we could have made the choice the other way as
+well: e.g. support socket API natively and use translation libraries to support
+other APIs atop it. We chose RDMA API as our primary interface, since we believe
+that the message-oriented interface it supports maps naturally to communication
+patterns of many containerized applications~\footnote{RDMA API is not widely
+used today because it is not well supported ... we are going to change that.}.
+The shared memory IPC API also maps naturally and easily to the RDMA API.
 
-Our design of the network library is shown in Figure~\ref{fig:netlib}. 
-We merely develop a new library for RDMA API, and other network APIs
-, such as Socket and MPI, are converted to RDMA semantics and supported
-by the same RDMA library. We suggest this design for three reasons. 
-First of all, RDMA Verbs is flexible for upper-layer APIs.
-RDMA Verbs is a general message-passing API which can 
-easily support multiple API semantics on its top. There are already libraries
-available to translate Socket~\cite{rfc7609,rsockets,sdp} and MPI APIs~ \cite{mpi-rdma} to RDMA Verbs 
-semantics, so that we do not have to reinvent the two modules "Socket over RDMA" and "MPI over RDMA" in Figure~\ref{fig:netlib}.
-Second, RDMA Verbs is also flexible to under-layer data-plane mechanism. 
-The actual data-plane of RDMA Verbs can be either RDMA enabled networks and 
-ordinary IP networks (using TCP as a transport). 
-In addition, its memory copying APIs can 
-easily support shared-memory semantics on the data-plane. 
+%% Our design of the network library is shown in  We suggest this design for three
+%% reasons.  First of all, RDMA Verbs is flexible for upper-layer APIs.  RDMA Verbs
+%% is a general message-passing API which can easily support multiple API semantics
+%% on its top. There are already libraries available to translate
+%% Socket~\cite{rfc7609,rsockets,sdp} and MPI APIs~ \cite{mpi-rdma} to RDMA Verbs
+%% semantics, so that we do not have to reinvent the two modules "Socket over RDMA"
+%% and "MPI over RDMA" in Figure~\ref{fig:netlib}.  Second, RDMA Verbs is also
+%% flexible to under-layer data-plane mechanism.  The actual data-plane of RDMA
+%% Verbs can be either RDMA enabled networks and ordinary IP networks (using TCP as
+%% a transport).  In addition, its memory copying APIs can easily support
+%% shared-memory semantics on the data-plane. 
 
-After the network library receives calls to send data to another
-container, it first checks (from the network orchestrator) the remote container's
-location. If the container is on the same host, it will put the data into
-a shared memory block and send the pointer of the memory block to the receiver's
-network library module. The latter will use correct API semantics to notify the application on the receiver container that the data is ready to read.
-Otherwise, if the remote container is on a different host, the network library will share the data with the overlay router on the same host, and tells the overlay router send the data to the remote container's IP. Then it relies on 
-the overlay routers to deliver the data to the destination. 
+After the network library receives calls to send data to another container, it
+first checks (from the network orchestrator) the remote container's location. If
+the container is on the same host, it will put the data into a shared memory
+block and send the pointer of the memory block to the receiver's network library
+module. The latter will use correct API semantics to notify the application on
+the receiver container that the data is ready to read.  Otherwise, if the remote
+container is on a different host, the network library will share the data with
+the overlay router on the same host, and tells the overlay router send the data
+to the remote container's IP. Then it relies on the overlay routers to deliver
+the data to the destination. 
 
 \subsection{The overlay router of FreeFlow}
 
@@ -57,23 +63,24 @@ the overlay routers to deliver the data to the destination.
     \caption{\label{fig:overlayrouter} The working flow of sending data from one host to another via overlay routers in \sysname.} 
 \end{figure} 
 
-Overlay routers have functionalities in both control-plane and data-plane.
-In control-plane, they allocate IP addresses for new containers according to
-default or manually configured policies. They also exchange routing information
+Overlay router has functionalities in both control-plane and data-plane.
+In control-plane, it allocates IP addresses for new containers according to
+default or manually configured policies. It also exchanges routing information
 and compute routings to all containers in the cluster. \sysname inherits 
 the control-plane behaviors from existing overlay network solutions.
 
 In data-plane, \sysname has its own implementation to make the data transfer
 more efficient. Figure~\ref{fig:overlayrouter} shows an example of how 
 overlay routers deliver data from sender container to receiver container.
-As described at the end of \S\ref{subsec:netlib}, we mention that 
+As described in \S\ref{subsec:netlib}, we mention that 
 the network library in the sender container will share the data with
 its local overlay router (Step 1) if the former finds that the receiver 
 is on another host. After that, the network library will tell
 the overlay router to send the data to the receiver's IP address (Step 2).
 The overlay router will check its routing table to find the next hop router
 towards the receiver (Step 3) and (Step 4) write the data to the next hop overlay
-router via RDMA (or DPDK). If the next hop router finds the receiver is on its
+router via RDMA (or DPDK, if available). If RDMA or DPDK are not available,
+normal IP communication is used. If the next hop router finds the receiver is on its
 host, it will share the received data with the network library on the same host
 and notify the latter that the data is ready to fetch (Step 5).
 
@@ -83,145 +90,13 @@ and overlay router on the same host are all performed via shared-memory.
 
 \subsection{The network orchestrator}
 
-The main functionality of the network orchestrator is to feed network agents
-the real-time information of container locations and VM locations (if needed).
-Since containers are typically started and managed by a cluster orchestrator
-(e.g. Mesos), the container to host mapping can be easily accessed
-from the cluster orchestrator. \sysname only adds a small module into 
-existing clusters orchestrator to push the newest container-to-host mapping
-to the network library modules in all the hosts in the cluster. 
+The main functionality of the network orchestrator is to maintain the real-time
+information of container locations and VM locations (if needed).  Since
+containers are typically started and managed by a cluster orchestrator (e.g.
+Mesos), the container to host mapping can be easily accessed from the cluster
+orchestrator. \sysname only adds a small module into existing clusters
+orchestrator to allow the network library modules to query the container-to-host
+mapping. Note that the orchestrator can either push the mappings to network
+libraries, or the libraries can pull it. The two choices have different
+scalability implications. We are investigating this tradeoff further.
 
-%%% commented 
-\iffalse
-
-Our goal is to design a complete network solution which can enable containers
-to communicate with portability, isolation and high performance at the same time.
-Basically, this solution has three major components: control-plane, data-plane 
-and networking abstraction. 
-
-
-A \textbf{control-plane} handles IP address assignment, routing and manages global states of a container network.
-A flexible control-plane is a must for portability and isolation. 
-It should permit a container to register its own IP address in the network
-from any host; It also should automatically configure and update the routing 
-to each container. One unique requirement for \sysname's control-plane,
-compared with existing container networking solutions, is to be able to 
-select data-plane (e.g. shared-memory, RDMA, TCP/IP, etc.) in real-time
-according to multiple factors, such as container locations, hardware 
-capabilities and so on. 
-There are several routing schemes that are used by existing
-container networking solutions, and they are optional for \sysname. 
-For example, Calico and WeaveNet build distributed routing scheme on top of 
-distributed routing protocols (e.g. BGP), while Docker default overlay network
-and DaoliNet use centralized routing planes based on OpenFlow and OVS.
-
-A \textbf{data-plane} delivers data from sender containers to receiver 
-containers. \sysname's data-plane should always achieve a good trade-off
-between isolation, portability and performance. 
-As introduced in \S\ref{sec:background}, there are many data-plane mechanisms
-for two containers, such as shared-memory (intro-host), TCP/IP, DPDK, RDMA, etc..
-Different mechanisms have different properties on portability, isolation and 
-performance. Therefore, we need to decide is to choose a single mechanism, or
-integrate multiple mechanisms together.
-
-A \textbf{network abstraction} defines how containers access the networks
-provided by \sysname. Application inside containers are using existing 
-network APIs, e.g. Socket for TCP/IP, Verbs for RDMA, MPI for parallel computing, etc., so \sysname must support all of them seamlessly for 
-backward compatibility. On the other hand, the actual data-plane mechanism
-should be hidden behind the network abstraction layer and transparent to 
-application code. There are two options to realize a network abstraction.
-The first option is to modify the implementation all libraries of existing
-network APIs. When applications calls the APIs, \sysname intercepts
-the function calls and performance its logic of networking. 
-The second option is to let \sysname only support one API semantics for
-data transfers, and develop translation layer which convert different
-existing API semantics into the one supported by \sysname.
-
-The design of~\sysname fully considers the requirements from all these three
-components.
-
-\subsection{Design choices of FreeFlow}
-
-Figure~\ref{fig:sysarch} shows the architecture and design choices on each 
-components of~\sysname. Network orchestrator and the network agents compose 
-the centralized control-plane of~\sysname. The network agent running in each 
-host coordinates multiple data-plane mechanisms according to the information and 
-configurations feed from the network orchestrator. RDMA Verbs is selected as 
-the basic interface for data transfers in the network abstraction. \vyas{please nuke/reword the previous section. dont make the RDMA the CRUX of the solution. its a recipe
- for disaster.} Different networking APIs (e.g. Socket) for data
-transfers are translated to the semantics of RDMA and performed by the RDMA
-Verbs library. A virtual RDMA NIC is created for each container to make the
-actual data-plane mechanism transparent to Verbs library.
-
-\para{Centralized control-plane:} \sysname inherently needs a (conceptually)
-centralized control-plane because the IP assignment, routing configuration and 
-data-plane mechanism decisions are all computed from the global states of the
-container cluster. The network orchestrator of~\sysname maintains three kinds
-of global information: the location of each container (from cluster orchestrator), the assigned IP of each
-container and the capabilities of host NICs. If containers are running on top of
-VMs, the network orchestrator also needs to know which physical machine each VM 
-is located (from fabric controllers). Container IPs can be assigned 
-automatically by network agents via DHCP, or manually assigned by containers' 
-configurations. The traffic from a sender
-to a receiver is routed by the sender's network agent directly to 
-the receiver's network agent, assuming the connectivity between
-any pair of host is always maintained by the host network. 
-
-\para{Integrated Data-plane:} \sysname integrates multiple data-plane 
-mechanisms. The network agent on each host 
-obtains the container location information from the network orchestrator. 
-It decides to use shared-memory to communicate if two containers are on the
-same host, otherwise, it will conduct the communicate going through 
-the NIC of its host. Depending on the capability of the NIC, the traffic 
-between two hosts can be delivered via RDMA, DPDK or TCP/IP.
-
-\para{Network abstraction with virtual NICs:} 
-We choose to provide a single data transfer API which is RDMA Verbs for two
-reasons. First of all, RDMA Verbs is flexible for upper-layer APIs.
-RDMA Verbs is a general message-passing API which can 
-easily support multiple API semantics on its top. There are already libraries
-available to translate TCP/IP~\cite{rfc7609,rsockets,sdp} and MPI APIs~ \cite{mpi-rdma} to RDMA Verbs 
-semantics. 
-Second, RDMA Verbs is also flexible to under-layer data-plane mechanism. 
-The actual data-plane of RDMA Verbs can be either RDMA enabled networks and 
-ordinary IP networks (using TCP as a transport). 
-In addition, its memory copying APIs can 
-easily support shared-memory semantics on the data-plane. 
-
-In next section, we will discussion about our implementation plan of \sysname.
-
-\vyas{here is my problem with this section. at the end of the day i dont get a AHA insight from this section nor can i really 
- envision  how the world will change because of your insight and what the steps to that will be. in some sense this sounds more 
-like the detailed design in sec 4 rather than the arch overview for sec 3. i really dont like fig 4 --> i cant quickly understand 
- what YOUR insight/prposal is. it looks like the same as every other figure you have drawn so far}
-
-%\subsection{Working flows of FreeFlow}
-
-%To support the standard RDMA Verbs API used by containers and realize
-%communications with the best available data-plane mechanism, \sysname needs
-%to present a RDMA environment to containers and efficiently supports 
-%the RDMA semantics with multiple data-plane mechanisms. While RDMA has
-%four interfaces (e.g. Write, Read, Send and Receive), we use Write as an example
-%to show how \sysname supports this operation with shared-memory and real RDMA.
-
-%Figure XXX (a) shows the working flow of a standard RDMA write from containers'
-%points of view when they use Verbs API. There are generally three steps in a 
-%Write operation. 
-%Step 1: the sender first creates a memory block, puts data in it and passes 
-%the pointer of this memory block to its NIC;
-%Step 2: the sender notify its NIC to write the memory block to the receiver's IP.
-%Step 3: the receiver's NIC will get data from the sender's NIC and copy the 
-%data into a memory block and pass the pointer of the memory block to the 
-%receiver.
-
-%In \sysname, both the sender and receiver containers have a virtual RDMA NIC.
-%In Step 1, the sender creates a shared-memory block and write data, and then 
-%the local network agent will get the pointer of this shared-memory block after %the sender passes it to its virtual NIC; In Step 2, after receiving the IP of 
-%the receiver, the local network agent will check whether the receiver is on
-%the same host of the sender. If the answer is "Yes", the local network agent %will
-%directly leverage the receiver's virtual NIC to notify it that a memory block 
-%from RDMA is ready to read with the pointer of the shared-memory block. 
-%Otherwise, the sender's local network agent will perform an actual RDMA write
-%with the receiver's local network agent, and the latter will put the received data into a shared-memory and pass it to the receiver container via its virtual NIC.
-
-\fi
