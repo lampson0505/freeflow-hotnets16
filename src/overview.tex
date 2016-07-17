@@ -7,17 +7,15 @@
 \end{figure*} 
 
 In this section, we discuss the key insights to achieve a high network
-performance without sacrificing portability of containers. We also 
-introduce the overall architecture of \sysname. 
+performance with a little less strict isolation and without sacrificing portability of containers. We also introduce the overall architecture 
+of \sysname. 
 
 %This section presents the high-level design of \sysname. We introduce
 %the requirements and concerns in the designs of control-plane, data-plane
 %and network access layer, and explain what design choices \sysname makes 
 %and what the reasons are behind these design choices.
 
-\subsection{Portability v.s. Performance}
-
-\vyas{this is a somewhat abrupt start to the section. what about isolation? why are we only talking abt portability and performance?}
+\subsection{Insights for high network performance}
 
 Container deployments opt for overlay-based networking since it is most
 portable: a container does not have to worry about where the other endpoint is.
@@ -28,7 +26,7 @@ route packets to this IP.
 
 Existing overlay-based container networks sacrifice performance for 
 the good portability, because traffic needs to go through a deep software 
-stack. 
+stack, as shown in Figure~\ref{fig:sysarch}(a). 
 The key to achieve a high performance and low overhead overlay network for
 containers is bypassing the performance bottlenecks, including bridges, software
 routers and host OS kernel, on data-plane. Given that containers are essentially
@@ -36,25 +34,17 @@ processes, the communication channels provided by IPC and hardware offloading
 techniques give us numerous hammers to build a better container network. For
 instance, containers within a single host (like Container~1 and Container~2 in
 Figure~\ref{fig:sysarch} (a) 
-can communicate via shared-memory, and software routers
+can communicate via shared-memory, and overlay routers
 in different hosts can talk via RDMA (or DPDK), which helps to bypass performance
-bottlenecks. In other words, one container should decide how to communicate
+bottlenecks. Note that communication paradigms like shared-memory and RDMA 
+sacrifice the isolation of containers. However, since in most cases
+containers are from the same application deployed by a single tenant, they
+have trust with each other and have the incentive to trade a little isolation
+for a huge boost in performance.
+
+Generally, one container should decide how to communicate
 with another according to the latter's location for high networking performance. 
-\vyas{the last sentence seems the key but it is getting buried in the para!}
-
-
-\subsection{Our approach}
-
-\vyas{dont call it overlay networks. call it overlay mode or something. 
-
-also how does this tie in to the previous sec 2.1? the transition isnt quite smooth
-
-i would suggest merging 2.1 and 2.2 into one section   
-
-}
-
-To bypass bottlenecks and get high network performance on overlay
-networks, there are two issues to solve: (1) How to discover the real-time locations of containers; (2) How to enable containers
+There are two issues to realize this key idea: (1) How to discover the real-time locations of containers; (2) How to enable containers
 to use different mechanisms to communicate with different peers.
 
 One way is to solve these two issues is merely depending on containers themselves:
@@ -63,10 +53,9 @@ agree on a communication mechanism to use. Nonetheless, this method will
 break the portability of containers, e.g. container locations are never transparent, and will also make the programing of applications extremely 
 complicated. 
 
-Instead, we take an alternative approach: using a centralized orchestrator to decide how containers communicate, and keeping the container locations and the actual
-communication mechanisms transparent to containers. \vyas{make it clear that we are using the container orchestrator and not the cloud providers 
- fabric manager. i.e., this is DEPLOYABLE without cloud provider support}
-Our key insight is that since currently most of the container clusters are managed by a centralized cluster orchestrator, the information about the location of the other endpoint
+Instead, we take an alternative approach: using a (conceptually) centralized orchestrator to decide how containers communicate, and keeping the container locations and the 
+actual
+communication mechanisms transparent to containers. Our key insight is that since currently most of the container clusters are managed by centralized cluster orchestrator (e.g. Mesos, Docker Swarm, etc.)\footnote{They can easily be deployed on private bare-metal clusters or cloud VM clusters without any special supports from cloud providers.}, the information about the location of the other endpoint
 can be easily obtained by querying the orchestrator. By leveraging this
 information, we can choose the right communication paradigm for the specific
 scenario. Furthermore, all of the complexity of communication mechanism selection
@@ -77,8 +66,17 @@ Next, we sketch the architecture of our solution.
 
 \subsection{The architecture of FreeFlow}
 
-\vyas{why are we starting with 5b. start with what is today in 5a and then draw contrast. dont jump into
- the solution!}
+Figure~\ref{fig:sysarch}(a) shows the architecture of existing overlay networking
+solutions for containers. Each container has a virtual NIC that is attached to
+the overlay router of the host via software bridge. Different overlay routers
+exchange routing information and build routing tables via standard routing 
+protocols, such as BGP. The fabric build by virtual NICs, bridges, overlay routers and physical NICs of hosts and host network is the actual data-plane for
+packets traversing the overlay from container to another one. Inside each container, applications leverage standard network APIs to utilize the network, and the API calls are executed by network libraries, such as \texttt{libsocket} for Socket API, and \texttt{libibverbs} for RDMA Verbs API.
+
+\sysname is not designed and built from scratch. Instead, it reuses many
+control-plane features like IP allocation and routing in the existing solution.
+However, \sysname modify multiple existing modules in the networking stack
+to achieve a smarter and more efficient data-plane.
 
 Figure~\ref{fig:sysarch}(b) shows the overall architecture of \sysname.
 The gray boxes in Figure~\ref{fig:sysarch}(b) presents the three kinds of
