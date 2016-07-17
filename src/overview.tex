@@ -16,6 +16,9 @@ introduce the overall architecture of \sysname.
 %and what the reasons are behind these design choices.
 
 \subsection{Portability v.s. Performance}
+
+\vyas{this is a somewhat abrupt start to the section. what about isolation? why are we only talking abt portability and performance?}
+
 Container deployments opt for overlay-based networking since it is most
 portable: a container does not have to worry about where the other endpoint is.
 For example, in Figure~\ref{fig:sysarch}(a), Container~1 and Container~3 cannot
@@ -37,8 +40,18 @@ can communicate via shared-memory, and software routers
 in different hosts can talk via RDMA (or DPDK), which helps to bypass performance
 bottlenecks. In other words, one container should decide how to communicate
 with another according to the latter's location for high networking performance. 
+\vyas{the last sentence seems the key but it is getting buried in the para!}
+
 
 \subsection{Our approach}
+
+\vyas{dont call it overlay networks. call it overlay mode or something. 
+
+also how does this tie in to the previous sec 2.1? the transition isnt quite smooth
+
+i would suggest merging 2.1 and 2.2 into one section   
+
+}
 
 To bypass bottlenecks and get high network performance on overlay
 networks, there are two issues to solve: (1) How to discover the real-time locations of containers; (2) How to enable containers
@@ -51,7 +64,8 @@ break the portability of containers, e.g. container locations are never transpar
 complicated. 
 
 Instead, we take an alternative approach: using a centralized orchestrator to decide how containers communicate, and keeping the container locations and the actual
-communication mechanisms transparent to containers.
+communication mechanisms transparent to containers. \vyas{make it clear that we are using the container orchestrator and not the cloud providers 
+ fabric manager. i.e., this is DEPLOYABLE without cloud provider support}
 Our key insight is that since currently most of the container clusters are managed by a centralized cluster orchestrator, the information about the location of the other endpoint
 can be easily obtained by querying the orchestrator. By leveraging this
 information, we can choose the right communication paradigm for the specific
@@ -62,6 +76,9 @@ network APIs.
 Next, we sketch the architecture of our solution.
 
 \subsection{The architecture of FreeFlow}
+
+\vyas{why are we starting with 5b. start with what is today in 5a and then draw contrast. dont jump into
+ the solution!}
 
 Figure~\ref{fig:sysarch}(b) shows the overall architecture of \sysname.
 The gray boxes in Figure~\ref{fig:sysarch}(b) presents the three kinds of
