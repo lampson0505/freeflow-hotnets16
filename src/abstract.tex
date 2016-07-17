@@ -1,13 +1,16 @@
 \textbf{Abstract---} 
-With the tremendous popularity gained by container technology, many applications are being containerized:
-splitting into numerous containers connected by networks. However, current container networking solutions
-have either bad performance or poor portability, which undermines the advantages of containerization.
-In this paper, we propose \sysname, a container networking solution which achieves both high performance
-and good portability. \sysname is designed according to the observation that strict isolations are unnecessary 
-among containers trusting each other, and it can significantly boost the communication quality of containers by 
-compromising isolation a little bit. Specifically, we enable containers on the same physical machine
-to communicate via shared-memory and the ones on different physical machines communicate via
-high performance networking options, e.g. RDMA and DPDK. Naively wrapping up all the solutions
-together will result in poor potability of containers and huge complexity in application development.
-Instead, \sysname leverages a network abstraction which supports all common network APIs and 
-a centralized network orchestrator which decides how to deliver data transparently to applications in the containers.
+As popularity of container technology grows, many applications are being
+developed, deployed and managed as a group of containers that communicate
+among each other to deliver the desired service to the user.  However, current
+container networking solutions have either poor performance or poor portability,
+which undermines the advantages of containerization.  In this paper, we propose
+\sysname, a container networking solution which achieves both high performance
+and good portability. \sysname leverages two insights: first, in most container
+deployments a central entity (i.e. the orchestrator) exists that is fully aware
+of the location of each container. Second, strict isolation is unnecessary
+among containers belonging to the same application. Leveraging these two
+observations allows \sysname to use a variety of technologies such as shared
+memory and RDMA to improve network performance (higher throughput, lower
+latency, and less CPU overhead), while maintaining full portability -- and do
+all this in a manner that is completely transparent to application developer.
+
