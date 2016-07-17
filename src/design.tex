@@ -45,14 +45,14 @@ The shared memory IPC API also maps naturally and easily to the RDMA API.
 %% shared-memory semantics on the data-plane. 
 
 After the network library receives calls to send data to another container, it
-first checks (from the network orchestrator) the remote container's location. If
+first checks (from the network orchestrator) the receiver container's location. If
 the container is on the same host, it will put the data into a shared memory
 block and send the pointer of the memory block to the receiver's network library
 module. The latter will use correct API semantics to notify the application on
-the receiver container that the data is ready to read.  Otherwise, if the remote
+the receiver container that the data is ready to read.  Otherwise, if the receiver
 container is on a different host, the network library will share the data with
-the overlay router on the same host, and tells the overlay router send the data
-to the remote container's IP. Then it relies on the overlay routers to deliver
+the overlay router on the same host, and tell the overlay router send the data
+to the receiver container's IP. Then it relies on the overlay routers to deliver
 the data to the destination. 
 
 \subsection{The overlay router of FreeFlow}
@@ -69,16 +69,16 @@ default or manually configured policies. It also exchanges routing information
 and compute routings to all containers in the cluster. \sysname inherits 
 the control-plane behaviors from existing overlay network solutions.
 
-In data-plane, \sysname has its own implementation to make the data transfer
+In the data-plane, \sysname has its own implementation to make the data transfer
 more efficient. Figure~\ref{fig:overlayrouter} shows an example of how 
-overlay routers deliver data from sender container to receiver container.
-As described in \S\ref{subsec:netlib}, we mention that 
+overlay routers deliver data from a sender container to a receiver container.
+As described in \S\ref{subsec:netlib},
 the network library in the sender container will share the data with
 its local overlay router (Step 1) if the former finds that the receiver 
 is on another host. After that, the network library will tell
 the overlay router to send the data to the receiver's IP address (Step 2).
 The overlay router will check its routing table to find the next hop router
-towards the receiver (Step 3) and (Step 4) write the data to the next hop overlay
+towards the receiver (Step 3) and (Step 4) it writes the data to the next hop overlay
 router via RDMA (or DPDK, if available). If RDMA or DPDK are not available,
 normal IP communication is used. If the next hop router finds the receiver is on its
 host, it will share the received data with the network library on the same host
