@@ -38,7 +38,15 @@ MPI run-time libraries. This can be achieved either by layering the
 MPI implementation on top of \sysname, or by implementing a similar
 solution in the MPI run-time library.
 
-\textbf{General improvements}
+\textbf{General improvements:} A significant amount of work has been
+spent attempting to improve the performance of the networking
+stack~\cite{lls,rfc7609,XenLoop} in various scenarios. However, none
+of them were aiming at optimizing the performance of networking
+communications between co-residing containers. While the performance
+of intra-node communication for containers was identified as relevant
+before~\cite{container-networking-modules}, to our knowledge there was
+no attempt at addressing this challenge.
+
 %low latency socket
 
 %http://facweb.cti.depaul.edu/jyu/Publications/Yu-Linux-TSM2004.pdf
