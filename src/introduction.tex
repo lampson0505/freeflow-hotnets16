@@ -13,11 +13,11 @@ hardware. Applications were not portable, and isolation between applications was
 non-existent. Operating systems emerged and offered a modicum of isolation and
 portability. As users demanded more portability and better isolation across
 applications, OSes became more sophisticated, and deep layering became the norm;
-the modern TCP/IP stack is a classic example.  Layering improves the
-application's portability across systems and types of  networks, but incurs
+the modern TCP/IP stack is a classic example. Layering improves the
+application's portability across systems and types of networks, but incurs
 well-known performance issues~\cite{dcqcn,netmap}. Soon enough, solutions
 like DPDK~\cite{dpdk} and RDMA~\cite{rdma} emerged that traded off some
-portability and isolation to provide better performance.  The trend continued
+portability and isolation to provide better performance. The trend continued
 with virtualization, which offers even more isolation, and additional
 portability (e.g., you can pack up and move VMs at will, even live-migrate
 them). In return, performance -- especially the network performance is further
@@ -25,10 +25,10 @@ reduced~\cite{netvm}. Numerous technologies have been proposed to remedy the
 situation (e.g.,~\cite{sriov,netvm,netmap,dpdk}) -- again at the cost of
 isolation and portability.
 
-The latest step in this trend is {\em containerization}~\cite{docker,kubernetes,coreos}.  By wrapping
+The latest step in this trend is {\em containerization}~\cite{docker,kubernetes,coreos}. By wrapping
 a process into a complete filesystem and namespace cell, a container has
 everything needed to run the process, including executables, libraries and
-system tools.  A container has no external dependencies, which makes it highly
+system tools. A container has no external dependencies, which makes it highly
 portable. The namespace of the container is isolated from other containers,
 eliminating worries about naming and version conflicts. Such portability and
 independence significantly simplifies the life cycle of a containerized
@@ -41,14 +41,14 @@ application, from testing to high availability maintenance.
      \label{fig:three_modes} 
 \end{figure} 
 \begin{figure*} [t]
-	\centering   
-	\includegraphics[width=6.7in]{figures/deployment-cases.pdf}   
-	\caption{\label{fig:deploy-cases} Representative running environments of containers.}   
+	\centering
+	\includegraphics[width=6.7in]{figures/deployment-cases.pdf} 
+	\caption{\label{fig:deploy-cases} Representative running environments of containers.}
 \end{figure*}
 
 Unfortunately, containers too suffer the veritable curse of having to sacrifice
 one or more of performance, isolation, and portability. To understand these
-potential performance bottlenecks, we conducted a simple experiment.  We set up
+potential performance bottlenecks, we conducted a simple experiment. We set up
 two Docker containers on a single server\footnote{See Section~\ref{sec:implementation} for HW and SW details}. We consider three
 ways for the containers to communicate with each other: (1) {\em Shared Memory:}
 This requires special setup\footnote{We setup the shared memory data transfer
@@ -59,7 +59,7 @@ namespace isolation, and offers the least isolation, and the least portability;
 host and uses the host's IP to communicate, like an ordinary process. Hence,
 containers are not truly isolated as they must share the port space; and (3)
 {\em Overlay mode:} in which the host runs a software router which connects all
-containers on the host via a bridge network.  The software routers enable
+containers on the host via a bridge network. The software routers enable
 overlay routing across multiple hosts to provide maximum portability as each
 container can even have public IPs assigned.
 
@@ -67,7 +67,7 @@ Figure~\ref{fig:three_modes} is a telling demonstration of the fundamental
 tussle between portability, isolation, and performance. We make two observations
 from this figure. First, the throughput and latency of host and overlay modes of
 inter-container communication are significantly worse than the throughput and
-latency of shared memory based communication.  The reason is obvious: both host
+latency of shared memory based communication. The reason is obvious: both host
 and overlay modes require a ``hairpin'' path through the full TCP/IP stack. 
 
 Second, the performance of overlay networking is worse than host mode. The
