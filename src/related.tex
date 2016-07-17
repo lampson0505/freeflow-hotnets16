@@ -18,8 +18,25 @@ constrained by the possibility of shared memory. Similarly, the Netmap
 and VALE solutions are sub-optimal when the VMs/containers are located
 on the same physical machine.
 
-\textbf{RDMA and HPC}
-RDMA originated from the HPC world, in the form of InfiniBand. The HPC community proposed RDMA enablement solutions for virtualization~\cite{ranadive2012toward} and containerization~\cite{rdmacontainers} technologies. Additionally, the HPC community have also been using shared-memory based communication~\cite{KNEM} for intra-node communication.
+\textbf{RDMA and HPC:} RDMA originated from the HPC world, in the form of InfiniBand. The HPC
+community proposed RDMA enablement solutions for
+virtualization~\cite{ranadive2012toward} and
+containerization~\cite{rdmacontainers} technologies. These solutions
+are addressing the challenges in exposing RDMA interfaces to
+virtualized/containerized applications, treating each VM/container as
+if it resides on a different node.
+
+The HPC community have also been using shared-memory based
+communication~\cite{KNEM,MPI:p:MPI,HybridMPI} for intra-node
+communication. These solutions are targeting MPI processes residing on
+a shared non-containerized, non-virtualized machine. They do not
+attempt to pierce the virtualization/containerization for additional
+performance.
+
+The same concepts described for \sysname can also be applicable for
+MPI run-time libraries. This can be achieved either by layering the
+MPI implementation on top of \sysname, or by implementing a similar
+solution in the MPI run-time library.
 
 \textbf{General improvements}
 %low latency socket
