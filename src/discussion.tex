@@ -35,7 +35,7 @@ done within the context of \sysname design.
 \textbf{Scalability of \sysname :}
 Scalability of \sysname is a major focus of our ongoing work. The design proposed
 in \S\ref{sec:design} has a few potential scalability challenges. For example,
-if overlay routers in \sysname may end up having to maintain per-flow state if
+overlay routers in \sysname may end up having to maintain per-flow state if
 they communicate with co-located containers using shared memory and with remote
 routers using RDMA -- if done n\"{a}ively, the router may end up maintaining
 one queue pair for each pair of communicating containers.  To solve this
