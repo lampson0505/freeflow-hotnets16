@@ -15,22 +15,22 @@ sacrificing portability of containers.
 Container deployments opt for overlay-based networking since it is most
 portable: a container does not have to worry about where the other endpoint is.
 For example, in Figure~\ref{fig:sysarch}(a), Container~1 and Container~3 cannot
-distinguish whether Container~2 is on Host~1 or Host~2, if only Container~2
+distinguish whether Container~2 is on Host~1 or Host~2, as long as Container~2
 keeps its overlay IP address (2.2.2.2) and the overlay routers know how to
 route packets to this IP. 
 
-Existing overlay-based container networks sacrifice performance for the good
+Existing overlay-based container networks sacrifice performance for good
 portability, because traffic needs to go through a deep software stack, as shown
-in Figure~\ref{fig:sysarch}(a).  The key to achieve a high performance and low
+in Figure~\ref{fig:sysarch}(a).  The key to achieve high performance and low
 overhead overlay network for containers is to avoid, in the data-plane, any
 performance bottlenecks such as bridges, software routers and host OS kernel.
 Given that containers are essentially processes, the communication channels
 provided by host-based IPC and hardware offloaded network transports (RDMA) give
 us numerous options to build a better container network. For instance,
-containers within a single host (like Container~1 and Container~2 in
-Figure~\ref{fig:sysarch}(a) can communicate via a shared-memory channel, and
-overlay routers in different hosts can talk via RDMA (or DPDK), which helps to
-bypass performance bottlenecks. Note that communication paradigms like
+containers within a single host, like Container~1 and Container~2 in
+Figure~\ref{fig:sysarch}(a), can communicate via a shared-memory channel, and
+overlay routers in different hosts can talk via RDMA (or DPDK) to
+bypass the performance bottlenecks. Note that communication paradigms like
 shared-memory and RDMA partially sacrifice the isolation of containers. However,
 since in most cases containers that communicate with each other are part of the
 same larger, distributed application deployed by a single tenant. Therefore, we
@@ -57,8 +57,8 @@ Instead, we take an alternative approach: using a (conceptually) centralized
 orchestrator to decide how containers should communicate, and keeping the
 container locations and the actual communication mechanisms transparent to
 containerized applications. Our key insight is that since currently most of the
-container clusters are managed by centralized cluster orchestrator (e.g. Mesos,
-Kubernetes, Docker Swarm)\footnote{They can easily be deployed on private
+container clusters are managed by a centralized cluster orchestrator (e.g., Mesos,
+Kubernetes, and Docker Swarm)\footnote{They can easily be deployed on private
 bare-metal clusters or cloud VM clusters without any special supports from cloud
 providers.}, the information about the location of the other endpoints can be
 easily obtained by querying the orchestrator. By leveraging this information, we
@@ -75,7 +75,7 @@ networking solutions for containers. Each container has a virtual NIC that is
 attached to the overlay router of the host via software bridge. Different
 overlay routers exchange routing information and build routing tables via
 standard routing protocols, such as BGP. The fabric built by virtual NICs,
-bridges, overlay routers and physical NICs of hosts and host network is the
+bridges, overlay routers, physical NICs and the host network is the
 actual data-plane for packets traversing the overlay from container to another
 one. Inside each container, applications use standard network APIs to access the
 network. The API calls are implemented in network libraries, such as
@@ -83,7 +83,7 @@ network. The API calls are implemented in network libraries, such as
 
 \sysname reuses many control-plane features like IP allocation and routing
 implemented by existing solutions such as {\em Weave}.  However, \sysname
-modify multiple existing modules in the networking stack to achieve a smarter
+modifies multiple existing modules in the networking stack to achieve a smarter
 and more efficient data-plane.
 
 Figure~\ref{fig:sysarch}(b) shows the overall architecture of \sysname.  The
@@ -106,7 +106,7 @@ container in the cluster. Our solution extends existing network orchestration
 solutions, and allows \sysname's network library to query for the physical
 deployment location of each container. 
 
-The architecture enable the possibility to make traffic among containers flow
+The architecture enables the possibility to make traffic among containers flow
 through an efficient data-plane: shared-memory for intra-host cases and
 shared-memory plus kernel bypassing networking for inter-host cases.
 

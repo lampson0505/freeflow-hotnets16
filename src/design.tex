@@ -19,7 +19,7 @@ efficient communication paradigm no matter which network API is used.
 
 One straightforward way to build the network library is to develop several
 independent libraries each of which deals with a specific network API.  For
-instance, we design a new \texttt{libsocket} for support Socket API and a new
+instance, we design a new \texttt{glibc} for support Socket API and a new
 \texttt{libibverbs} for RDMA Verbs API. However, writing different libraries is
 clearly suboptimal. Instead, as shown in  Figure~\ref{fig:netlib}, we merely
 develop a new library for RDMA API, and use existing ``translation'' libraries

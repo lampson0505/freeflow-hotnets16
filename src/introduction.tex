@@ -80,7 +80,7 @@ As the popularity of container networking grows, this inefficiency must be
 addressed. On one hand, the low throughput and high latency directly impacts the
 overall performance of large scale distributed systems, such as big data
 analytics~\cite{varys,orchestra,reining,chowdhury}, key-value
-stores~\cite{farm}, machine learning frameworks, etc. On the other hand,
+stores~\cite{farm}, machine learning frameworks~\cite{li2014communication}, etc. On the other hand,
 it forces the applications to reserve substantial CPU resources to merely
 perform traffic processing, which significantly raises the cost of running the
 applications.
@@ -92,7 +92,7 @@ directly applied to the container world. SR-IOV typically scales to tens of VMs
 per server. In typical deployments, there are hundreds of containers per server.
 The cost of supporting so many containers in the NIC hardware will be
 prohibitive. NetVM~\cite{netvm} cannot be used directly with containers, since
-it destroys portability -- it works only when two VMs are on the same server.
+it destroys portability -- it only works when two VMs are on the same server.
 Developers prize containers especially for their portability: indeed, one of the
 main selling points of containerization is that a containerized application that
 runs on developer's desktop will run in the cloud without any
@@ -106,9 +106,9 @@ a manner that is completely transparent to application developers.
 To achieve these seemingly conflicting goals, we observe an opportunity to
 leverage two key aspects of typical container deployments: (1) they are
 typically managed by a central orchestrator (E.g., Mesos, YARN and Kubernetes
-\cite{mesos,yarn,kubernetes}) and (2) are typically deployed over managed network
+\cite{mesos,yarn,kubernetes}) and (2) they are typically deployed over managed network
 fabrics (e.g., a public cloud provider). Taking advantage of these easily
-available additional bits of information, we sketch a roadmap for an
+available additional bits of information, we sketch a roadmap of an
 overlay-based solution that obtains the relevant deployment-specific
 information from the aforementioned container orchestrator and fabric manager
 and use this in conjunction with the "right" I/O mechanism (e.g., shared memory
